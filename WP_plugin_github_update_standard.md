@@ -207,9 +207,7 @@ The updater must:
 - find a release asset named `plugin-slug.zip`
 - inject update data into WordPress using `pre_set_site_transient_update_plugins`
 - provide plugin details through the `plugins_api` filter
-- expose a plugin-row link to manually check GitHub for updates
 - cache release checks with a site transient
-- clear the cache when a manual check runs
 - fail silently and safely when GitHub is unreachable
 
 The updater must not:
@@ -219,6 +217,7 @@ The updater must not:
 - block plugin activation if GitHub is unavailable
 - require a GitHub token for public release checks
 - expose warnings to non-admin users
+- add a custom "Check GitHub updates" link to the plugin row
 
 ---
 
@@ -232,7 +231,6 @@ private const REPO = 'example-plugin';
 private const SLUG = 'techn-example-plugin';
 private const ASSET_NAME = 'techn-example-plugin.zip';
 private const RELEASE_TRANSIENT = 'tep_github_latest_release';
-private const PLUGINS_SCREEN_CHECK_TRANSIENT = 'tep_plugins_screen_update_check';
 ```
 
 Use plugin-specific transient names.
@@ -364,42 +362,31 @@ Use the GitHub release body as the changelog section.
 
 ---
 
-## Plugin Row Links
+## Plugin Row Metadata
 
-The plugin row should include:
+The plugin row should include a "GitHub" metadata link.
 
-- a manual "Check GitHub updates" action link
-- a "GitHub" metadata link
+The plugin row should not include a custom update-check action link.
 
-The manual check must:
+WordPress should surface updates through the native plugin update UI.
 
-- require `update_plugins`
-- use `admin-post.php`
-- verify a nonce
-- clear the release cache
-- delete the `update_plugins` site transient
-- call `wp_update_plugins()`
-- redirect back to the Plugins page
-- show a dismissible admin notice
-
-Do not put the update checker inside the plugin settings page unless the plugin specifically needs it.
-
-The Plugins page is the expected place for update discovery and update action.
+If an update does not appear immediately after publishing a release, wait for WordPress update transients to refresh or use WordPress's native update mechanisms.
 
 ---
 
-## Automatic Check On Plugins Page
+## Update Check Timing
 
-When an admin opens `plugins.php`, the updater may trigger a throttled check.
+The updater should run as part of WordPress's normal plugin update checks.
 
 Recommended behaviour:
 
-- only run on `plugins.php`
-- only run for users with `update_plugins`
-- throttle with a transient for about 15 minutes
-- refresh WordPress update transients
+- use the `pre_set_site_transient_update_plugins` filter
+- cache GitHub release lookups with a plugin-specific site transient
+- keep successful lookups cached for about 6 hours
+- keep failed lookups cached for a shorter period, such as 30 minutes
+- let WordPress decide when to refresh plugin update data
 
-Do not call GitHub on every page load.
+Do not call GitHub on every admin page load.
 
 ---
 
@@ -433,8 +420,8 @@ Use this release sequence:
 10. Create a GitHub release tag matching the version.
 11. Attach `plugin-slug.zip`.
 12. Verify the release asset is visible.
-13. In WordPress, click "Check GitHub updates" from the Plugins page.
-14. Confirm WordPress detects and installs the update.
+13. In WordPress, go to the Plugins page and confirm the update is offered.
+14. Confirm WordPress installs the update.
 
 Example GitHub CLI release command:
 
@@ -463,7 +450,6 @@ Before finalising a plugin update, confirm:
 - GitHub release tag matches the plugin version
 - GitHub release includes the expected ZIP asset
 - WordPress detects the update from the Plugins page
-- manual "Check GitHub updates" link works
 - "View details" opens useful release information
 - update install succeeds on a test or production site as appropriate
 
@@ -531,4 +517,3 @@ When Codex changes a plugin that uses this standard, Codex must:
 - tell the user whether PHP lint/tests were run
 
 If PHP is not available locally, Codex must say so in the final response.
-
