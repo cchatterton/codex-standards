@@ -285,6 +285,12 @@ Cache successful release responses for about 6 hours.
 
 Cache failed lookups for a shorter period, such as 30 minutes.
 
+Bypass the plugin-specific GitHub release cache when WordPress is performing a forced update check, such as the native "Check again" action on the Updates screen.
+
+Forced update checks should delete or ignore the plugin-specific release transient before calling GitHub so newly published releases can be detected immediately.
+
+Do not bypass caching on every admin page load.
+
 ---
 
 ## Version Comparison
@@ -403,6 +409,7 @@ Recommended behaviour:
 - cache GitHub release lookups with a plugin-specific site transient
 - keep successful lookups cached for about 6 hours
 - keep failed lookups cached for a shorter period, such as 30 minutes
+- bypass the plugin-specific release cache when WordPress is performing a forced update check
 - let WordPress decide when to refresh plugin update data
 
 Do not call GitHub on every admin page load.
@@ -487,6 +494,7 @@ Check:
 - GitHub latest release is not a draft
 - release is not accidentally missing assets
 - WordPress update transient has been cleared
+- plugin-specific GitHub release transient has been cleared or bypassed by a forced update check
 
 ### Update Installs But Plugin Disappears
 
