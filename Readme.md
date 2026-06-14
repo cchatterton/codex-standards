@@ -8,6 +8,7 @@ Codex must ensure all proposed solutions comply with:
 
 - The general Codex development standards
 - The WordPress plugin development standards, where plugin work is involved
+- The WordPress plugin GitHub update standard, where plugin update delivery from GitHub is involved
 - Any project-specific specification or implementation brief provided for the task
 
 ## Order of Authority
