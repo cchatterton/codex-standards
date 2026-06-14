@@ -225,6 +225,7 @@ The updater must:
 - compare the release version to the installed plugin version
 - find a release asset named `plugin-slug.zip`
 - inject update data into WordPress using `pre_set_site_transient_update_plugins`
+- remove stale update data for the plugin when the latest release is not newer than the installed version
 - provide plugin details through the `plugins_api` filter
 - cache release checks with a site transient
 - fail silently and safely when GitHub is unreachable
@@ -335,6 +336,10 @@ If the release exists but the ZIP asset is missing, do not offer an update.
 
 ## WordPress Update Injection
 
+Before returning the update transient, the updater must remove stale update entries for its own plugin when the latest GitHub release is equal to or older than the installed version.
+
+This prevents WordPress from continuing to display an old update notice after the plugin has already been updated to the advertised version.
+
 The updater should add an object to:
 
 ```php
@@ -357,6 +362,23 @@ Minimum fields:
 ```
 
 Keep `requires` and `requires_php` aligned with the plugin header.
+
+When no update is available, clear the plugin's stale response entry and optionally populate `no_update`:
+
+```php
+unset($transient->response[$plugin_file]);
+
+$transient->no_update[$plugin_file] = (object) array(
+    'id'           => 'https://github.com/owner/repo',
+    'slug'         => 'plugin-slug',
+    'plugin'       => $plugin_file,
+    'new_version'  => PLUGIN_VERSION,
+    'url'          => 'https://github.com/owner/repo',
+    'package'      => '',
+    'requires'     => '6.0',
+    'requires_php' => '8.1',
+);
+```
 
 ---
 
