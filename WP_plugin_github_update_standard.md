@@ -230,7 +230,9 @@ The updater must:
 - provide plugin details through the `plugins_api` filter
 - cache release checks with a site transient
 - avoid long-lived "no update" release caches that hide a release published shortly after a check
-- clear the plugin-specific GitHub release cache after successful plugin upgrader runs
+- never store failed GitHub lookups in the same transient used as release data
+- store failed lookup diagnostics in a separate short-lived diagnostic transient when diagnostics are useful
+- clear the plugin-specific GitHub release cache and any diagnostic transient after successful plugin upgrader runs
 - fail silently and safely when GitHub is unreachable
 
 The updater must not:
@@ -254,6 +256,7 @@ private const REPO = 'example-plugin';
 private const SLUG = 'techn-example-plugin';
 private const ASSET_NAME = 'techn-example-plugin.zip';
 private const RELEASE_TRANSIENT = 'tep_github_latest_release';
+private const ERROR_TRANSIENT = 'tep_github_latest_release_error';
 ```
 
 Use plugin-specific transient names.
@@ -288,12 +291,22 @@ wp_remote_get(
 Cache successful release responses carefully:
 
 - if the latest GitHub version is newer than the installed plugin version, cache the response for about 6 hours
-- if the latest GitHub version is equal to or older than the installed plugin version, cache the response for a short period only, such as 10-15 minutes
-- if the release response cannot be parsed into a valid version, cache it for a short period only
+- if the latest GitHub version is equal to or older than the installed plugin version, cache the response for a short period only, such as 1-15 minutes
+- if the release response cannot be parsed into a valid version, do not store it in the release transient
 
 Do not cache an equal-version release response for several hours. This can hide a release that is published shortly after the plugin checks GitHub.
 
-Cache failed lookups for a shorter period, such as 30 minutes.
+Do not cache failed lookups in the release transient. A failed lookup is not release data and must not be allowed to block future update notices.
+
+If diagnostics are useful, store failed lookup details in a separate plugin-specific diagnostic transient for a short period, such as 10 minutes. The diagnostic transient may include:
+
+- error type, such as `wp_error`, `http_error`, or `json_error`
+- HTTP response code and message when available
+- WordPress error message when available
+- a short body excerpt when useful
+- checked timestamp
+
+The updater must not treat the diagnostic transient as update state.
 
 Bypass the plugin-specific GitHub release cache when WordPress is performing a forced update check, such as the native "Check again" action on the Updates screen.
 
@@ -311,6 +324,8 @@ Only treat these as forced checks for users who can `update_plugins`.
 Do not bypass caching on every admin page load.
 
 The plugin-specific release cache should be cleared after a successful plugin update using `upgrader_process_complete`.
+
+Clearing release cache should also clear any plugin-specific diagnostic transient.
 
 ---
 
@@ -403,7 +418,18 @@ Minimum fields:
 
 Keep `requires` and `requires_php` aligned with the plugin header.
 
-When no update is available, clear the plugin's stale response entry and optionally populate `no_update`:
+When no update is available, clear the plugin's stale response entry.
+
+Prefer not to populate a plugin-specific `no_update` entry for GitHub-distributed plugins. WordPress and host caches can keep stale `no_update` data around longer than expected, which can hide newly published GitHub releases during hotfix workflows.
+
+```php
+unset($transient->response[$plugin_file]);
+unset($transient->no_update[$plugin_file]);
+```
+
+If a plugin has a specific need to populate `no_update`, it must only do so after a successful, valid GitHub release lookup confirms there is no newer version. It must never write `no_update` after a failed GitHub lookup.
+
+Example optional `no_update` object:
 
 ```php
 unset($transient->response[$plugin_file]);
@@ -471,10 +497,11 @@ Recommended behaviour:
 - use the `site_transient_update_plugins` filter as a read-path safety net
 - cache GitHub release lookups with a plugin-specific site transient
 - keep newer-version successful lookups cached for about 6 hours
-- keep equal-version or older-version successful lookups cached for only 10-15 minutes
-- keep failed lookups cached for a shorter period, such as 30 minutes
+- keep equal-version or older-version successful lookups cached for only 1-15 minutes
+- do not store failed lookups in the release transient
+- store failed lookup diagnostics separately only when useful
 - bypass the plugin-specific release cache when WordPress is performing a forced update check
-- clear the plugin-specific release cache after successful plugin updater runs
+- clear the plugin-specific release cache and any diagnostic transient after successful plugin updater runs
 - let WordPress decide when to refresh plugin update data
 
 Do not call GitHub on every admin page load.
@@ -549,6 +576,9 @@ Before finalising a plugin update, confirm:
 - WordPress detects the update from the Plugins page
 - "View details" opens useful release information
 - update install succeeds on a test or production site as appropriate
+- failed GitHub HTTP, SSL, DNS, or JSON responses do not write `no_update`
+- failed GitHub HTTP, SSL, DNS, or JSON responses do not write an error sentinel into the release transient
+- any updater diagnostics are stored separately from release data
 
 ---
 
@@ -567,8 +597,11 @@ Check:
 - WordPress update transient has been cleared
 - plugin-specific GitHub release transient has been cleared or bypassed by a forced update check
 - plugin-specific release transient is not caching an equal-version release for several hours
+- plugin-specific release transient does not contain an error sentinel such as `asig_error`
+- failed GitHub lookups are not being cached as release state
 - updater hooks both `pre_set_site_transient_update_plugins` and `site_transient_update_plugins`
 - forced update detection recognises the current WordPress update request shape
+- the WordPress server can reach `https://api.github.com/repos/{owner}/{repo}/releases/latest`
 
 ### Update Installs But Plugin Disappears
 
@@ -601,6 +634,54 @@ The plugin should continue working.
 Admin users may see a soft "could not read latest GitHub release" message only where useful.
 
 Never make GitHub availability required for normal plugin runtime.
+
+Failed GitHub requests must not be stored in the release transient used for update decisions.
+
+Good pattern:
+
+```php
+if (is_wp_error($response)) {
+    set_site_transient(
+        self::ERROR_TRANSIENT,
+        array(
+            'type'       => 'wp_error',
+            'message'    => $response->get_error_message(),
+            'checked_at' => time(),
+        ),
+        10 * MINUTE_IN_SECONDS
+    );
+    delete_site_transient(self::RELEASE_TRANSIENT);
+    return false;
+}
+
+$response_code = wp_remote_retrieve_response_code($response);
+
+if (200 !== $response_code) {
+    set_site_transient(
+        self::ERROR_TRANSIENT,
+        array(
+            'type'       => 'http_error',
+            'code'       => $response_code,
+            'message'    => wp_remote_retrieve_response_message($response),
+            'body'       => substr(wp_remote_retrieve_body($response), 0, 500),
+            'checked_at' => time(),
+        ),
+        10 * MINUTE_IN_SECONDS
+    );
+    delete_site_transient(self::RELEASE_TRANSIENT);
+    return false;
+}
+```
+
+Bad pattern:
+
+```php
+set_site_transient(self::RELEASE_TRANSIENT, array('asig_error' => true), 30 * MINUTE_IN_SECONDS);
+```
+
+That stores a failed lookup where valid release data belongs and can block update notices until the cache expires.
+
+For hotfix-sensitive sites that want immediate update availability across multiple GitHub-distributed plugins, use a site-level MU plugin to clear WordPress's `update_plugins` transient on update screens. Plugin updaters must still avoid caching failed lookups as release state.
 
 ---
 
