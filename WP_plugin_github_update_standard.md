@@ -225,9 +225,12 @@ The updater must:
 - compare the release version to the installed plugin version
 - find a release asset named `plugin-slug.zip`
 - inject update data into WordPress using `pre_set_site_transient_update_plugins`
+- also inject update data through `site_transient_update_plugins` so the Plugins screen can recover when WordPress is reading an existing update transient
 - remove stale update data for the plugin when the latest release is not newer than the installed version
 - provide plugin details through the `plugins_api` filter
 - cache release checks with a site transient
+- avoid long-lived "no update" release caches that hide a release published shortly after a check
+- clear the plugin-specific GitHub release cache after successful plugin upgrader runs
 - fail silently and safely when GitHub is unreachable
 
 The updater must not:
@@ -282,7 +285,13 @@ wp_remote_get(
 );
 ```
 
-Cache successful release responses for about 6 hours.
+Cache successful release responses carefully:
+
+- if the latest GitHub version is newer than the installed plugin version, cache the response for about 6 hours
+- if the latest GitHub version is equal to or older than the installed plugin version, cache the response for a short period only, such as 10-15 minutes
+- if the release response cannot be parsed into a valid version, cache it for a short period only
+
+Do not cache an equal-version release response for several hours. This can hide a release that is published shortly after the plugin checks GitHub.
 
 Cache failed lookups for a shorter period, such as 30 minutes.
 
@@ -290,7 +299,18 @@ Bypass the plugin-specific GitHub release cache when WordPress is performing a f
 
 Forced update checks should delete or ignore the plugin-specific release transient before calling GitHub so newly published releases can be detected immediately.
 
+Forced update detection should recognise both GET and POST request shapes used by WordPress update screens. At minimum, check for:
+
+- `force-check`
+- `action=update-selected`
+- `action=upgrade-plugin`
+- `action=do-plugin-upgrade`
+
+Only treat these as forced checks for users who can `update_plugins`.
+
 Do not bypass caching on every admin page load.
+
+The plugin-specific release cache should be cleared after a successful plugin update using `upgrader_process_complete`.
 
 ---
 
@@ -339,6 +359,26 @@ If the release exists but the ZIP asset is missing, do not offer an update.
 Before returning the update transient, the updater must remove stale update entries for its own plugin when the latest GitHub release is equal to or older than the installed version.
 
 This prevents WordPress from continuing to display an old update notice after the plugin has already been updated to the advertised version.
+
+The updater must hook both:
+
+```php
+add_filter('pre_set_site_transient_update_plugins', array($updater, 'add_update_data'));
+add_filter('site_transient_update_plugins', array($updater, 'add_update_data'));
+```
+
+`pre_set_site_transient_update_plugins` updates the transient when WordPress refreshes plugin update data.
+
+`site_transient_update_plugins` allows the plugin to add or repair its own update entry when WordPress is reading an existing transient on the Plugins screen.
+
+The `site_transient_update_plugins` path must still use the plugin-specific GitHub release cache and must not call GitHub on every admin page load.
+
+Before writing to `response` or `no_update`, ensure those properties are arrays:
+
+```php
+$transient->response = isset($transient->response) && is_array($transient->response) ? $transient->response : array();
+$transient->no_update = isset($transient->no_update) && is_array($transient->no_update) ? $transient->no_update : array();
+```
 
 The updater should add an object to:
 
@@ -428,13 +468,18 @@ The updater should run as part of WordPress's normal plugin update checks.
 Recommended behaviour:
 
 - use the `pre_set_site_transient_update_plugins` filter
+- use the `site_transient_update_plugins` filter as a read-path safety net
 - cache GitHub release lookups with a plugin-specific site transient
-- keep successful lookups cached for about 6 hours
+- keep newer-version successful lookups cached for about 6 hours
+- keep equal-version or older-version successful lookups cached for only 10-15 minutes
 - keep failed lookups cached for a shorter period, such as 30 minutes
 - bypass the plugin-specific release cache when WordPress is performing a forced update check
+- clear the plugin-specific release cache after successful plugin updater runs
 - let WordPress decide when to refresh plugin update data
 
 Do not call GitHub on every admin page load.
+
+Do not rely on the WordPress `update_plugins` transient alone. A plugin-specific release transient that cached "latest release equals installed version" before a new GitHub release was published can keep hiding the update unless it is short-lived or bypassed during forced checks.
 
 ---
 
@@ -468,8 +513,10 @@ Use this release sequence:
 10. Create a GitHub release tag matching the version.
 11. Attach `plugin-slug.zip`.
 12. Verify the release asset is visible.
-13. In WordPress, go to the Plugins page and confirm the update is offered.
-14. Confirm WordPress installs the update.
+13. Clear or bypass the plugin-specific GitHub release cache on a test site.
+14. In WordPress, use Dashboard > Updates > Check again.
+15. In WordPress, go to the Plugins page and confirm the update is offered.
+16. Confirm WordPress installs the update.
 
 Example GitHub CLI release command:
 
@@ -497,6 +544,8 @@ Before finalising a plugin update, confirm:
 - ZIP does not include unrelated repository files
 - GitHub release tag matches the plugin version
 - GitHub release includes the expected ZIP asset
+- the GitHub latest release API returns the new tag and expected asset
+- plugin-specific stale release cache has been cleared or bypassed during testing
 - WordPress detects the update from the Plugins page
 - "View details" opens useful release information
 - update install succeeds on a test or production site as appropriate
@@ -517,6 +566,9 @@ Check:
 - release is not accidentally missing assets
 - WordPress update transient has been cleared
 - plugin-specific GitHub release transient has been cleared or bypassed by a forced update check
+- plugin-specific release transient is not caching an equal-version release for several hours
+- updater hooks both `pre_set_site_transient_update_plugins` and `site_transient_update_plugins`
+- forced update detection recognises the current WordPress update request shape
 
 ### Update Installs But Plugin Disappears
 
