@@ -62,7 +62,7 @@ For the default Techn/AlphaSys GitHub updater pattern, use public repositories s
 
 Every GitHub-distributed plugin must include both a `Plugin URI` and an `Update URI` header.
 
-Use `Plugin URI` as the self-serve update fallback link shown by WordPress in plugin row metadata:
+Use `Plugin URI` as an informational fallback link shown by WordPress in plugin row metadata:
 
 ```text
 Plugin URI: https://github.com/{owner}/{repo}/releases/latest
@@ -74,9 +74,11 @@ Use `Update URI` as the stable source identifier for the GitHub updater and to p
 Update URI: https://github.com/{owner}/{repo}
 ```
 
-This is mandatory because inactive plugins cannot run their own PHP updater code. The static `Plugin URI` gives administrators a visible route to the latest GitHub release even when the plugin is inactive or not network active.
+This static link is not the required update workflow. It exists only as a fallback for discovery and release auditing.
 
-The self-contained updater should still inject native WordPress update notices whenever the plugin is active in the current admin context.
+The required update workflow must happen inside WordPress. The user must either be prompted by a native WordPress update notice or be able to trigger a WordPress-side update check that returns a native "update now" action without needing to visit GitHub.
+
+The self-contained updater must inject native WordPress update notices whenever the plugin is active in the current admin context.
 
 ---
 
@@ -253,6 +255,8 @@ unzip -l plugin-slug.zip
 
 Plugins distributed through GitHub must include a small GitHub release updater.
 
+The updater must support a fully WordPress-native update flow. Administrators must be able to discover, check for, and install updates from WordPress admin without visiting the GitHub repository or manually downloading the release ZIP.
+
 The updater must:
 
 - check the latest GitHub release
@@ -261,6 +265,7 @@ The updater must:
 - find a release asset named `plugin-slug.zip`
 - inject update data into WordPress using `pre_set_site_transient_update_plugins`
 - also inject update data through `site_transient_update_plugins` so the Plugins screen can recover when WordPress is reading an existing update transient
+- expose a WordPress-admin "Check for updates" affordance when the plugin is loaded in the current admin context
 - remove stale update data for the plugin when the latest release is not newer than the installed version
 - provide plugin details through the `plugins_api` filter
 - cache release checks with a site transient
@@ -277,7 +282,6 @@ The updater must not:
 - block plugin activation if GitHub is unavailable
 - require a GitHub token for public release checks
 - expose warnings to non-admin users
-- add a custom "Check GitHub updates" link to the plugin row
 
 ---
 
@@ -512,13 +516,28 @@ Use the GitHub release body as the changelog section.
 
 ## Plugin Row Metadata
 
-The plugin row should include a "GitHub" metadata link.
+The plugin row must include a "GitHub" metadata link when the plugin is loaded in the current admin context.
 
-The plugin row should not include a custom update-check action link.
+The plugin row must also include a "Check for updates" metadata link when the plugin is loaded in the current admin context.
 
-WordPress should surface updates through the native plugin update UI.
+The "Check for updates" link should point to WordPress's native update check screen with a forced update check, for example:
 
-If an update does not appear immediately after publishing a release, wait for WordPress update transients to refresh or use WordPress's native update mechanisms.
+```php
+$base_url = is_multisite() ? network_admin_url('update-core.php') : admin_url('update-core.php');
+$check_url = add_query_arg('force-check', '1', $base_url);
+```
+
+This link must use WordPress's native update mechanism. It must not directly update plugin files or call GitHub outside the normal updater flow.
+
+This link is part of the required WordPress-native update workflow. After the check completes, WordPress should show the native update prompt and "update now" action when a newer GitHub release exists.
+
+WordPress must surface updates through the native plugin update UI.
+
+Inactive plugins cannot add dynamic row metadata or run their self-contained updater code. For plugins that must be updateable from Network Admin while otherwise unused on the main site, the plugin should support network activation safely so its updater is loaded in Network Admin while feature behaviour remains gated per site as needed.
+
+The static `Plugin URI` latest-release link is only a fallback for discovery and release auditing. It must not be treated as satisfying the required update workflow.
+
+If an update does not appear immediately after publishing a release, use WordPress's native update mechanisms, including Dashboard > Updates > Check again or the plugin row "Check for updates" link.
 
 ---
 
