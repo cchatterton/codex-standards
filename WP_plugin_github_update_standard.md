@@ -46,6 +46,16 @@ Plugin URI: https://github.com/cchatterton/example-plugin
 
 ---
 
+## Repository Visibility
+
+Plugins using the standard unauthenticated GitHub release updater must be hosted in a public GitHub repository, or otherwise expose a publicly downloadable release ZIP asset.
+
+Do not create plugin repositories as private unless the plugin specification explicitly requires private distribution and the updater is extended to support authenticated GitHub API and asset requests.
+
+For the default Techn/AlphaSys GitHub updater pattern, use public repositories so WordPress can discover `/releases/latest` and download the expected ZIP asset without a token.
+
+---
+
 ## Version Discipline
 
 Every plugin change that should be installable through WordPress must include:
