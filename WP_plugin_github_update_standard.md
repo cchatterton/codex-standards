@@ -520,14 +520,23 @@ The plugin row must include a "GitHub" metadata link when the plugin is loaded i
 
 The plugin row must also include a "Check for updates" metadata link when the plugin is loaded in the current admin context.
 
-The "Check for updates" link should point to WordPress's native update check screen with a forced update check, for example:
+The "Check for updates" link should point to a nonce-protected plugin-page action handled by the plugin, for example:
 
 ```php
-$base_url = is_multisite() ? network_admin_url('update-core.php') : admin_url('update-core.php');
-$check_url = add_query_arg('force-check', '1', $base_url);
+$plugins_url = is_multisite() ? network_admin_url('plugins.php') : admin_url('plugins.php');
+$check_url = wp_nonce_url(add_query_arg('example_check_updates', '1', $plugins_url), 'example_check_updates');
 ```
 
-This link must use WordPress's native update mechanism. It must not directly update plugin files or call GitHub outside the normal updater flow.
+The handler must:
+
+1. verify the nonce
+2. check `update_plugins`
+3. clear the plugin-specific GitHub release and diagnostic transients
+4. clear WordPress's `update_plugins` site transient
+5. call `wp_update_plugins()`
+6. redirect back to the Plugins screen
+
+This link must trigger WordPress's native plugin update mechanism and return the user to the Plugins screen. It must not redirect users to `update-core.php` as the final destination, directly update plugin files, or require users to visit GitHub.
 
 This link is part of the required WordPress-native update workflow. After the check completes, WordPress should show the native update prompt and "update now" action when a newer GitHub release exists.
 
