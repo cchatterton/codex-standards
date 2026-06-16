@@ -29,6 +29,7 @@ Release ZIP asset name:
 Author:
 Author URL:
 Plugin URI:
+Update URI:
 ```
 
 Example:
@@ -41,7 +42,8 @@ Main plugin file: techn-example-plugin/techn-example-plugin.php
 Release ZIP asset name: techn-example-plugin.zip
 Author: Techn
 Author URL: https://techn.com.au
-Plugin URI: https://github.com/cchatterton/example-plugin
+Plugin URI: https://github.com/cchatterton/example-plugin/releases/latest
+Update URI: https://github.com/cchatterton/example-plugin
 ```
 
 ---
@@ -53,6 +55,28 @@ Plugins using the standard unauthenticated GitHub release updater must be hosted
 Do not create plugin repositories as private unless the plugin specification explicitly requires private distribution and the updater is extended to support authenticated GitHub API and asset requests.
 
 For the default Techn/AlphaSys GitHub updater pattern, use public repositories so WordPress can discover `/releases/latest` and download the expected ZIP asset without a token.
+
+---
+
+## Plugin Header Update Links
+
+Every GitHub-distributed plugin must include both a `Plugin URI` and an `Update URI` header.
+
+Use `Plugin URI` as the self-serve update fallback link shown by WordPress in plugin row metadata:
+
+```text
+Plugin URI: https://github.com/{owner}/{repo}/releases/latest
+```
+
+Use `Update URI` as the stable source identifier for the GitHub updater and to prevent accidental WordPress.org slug matching:
+
+```text
+Update URI: https://github.com/{owner}/{repo}
+```
+
+This is mandatory because inactive plugins cannot run their own PHP updater code. The static `Plugin URI` gives administrators a visible route to the latest GitHub release even when the plugin is inactive or not network active.
+
+The self-contained updater should still inject native WordPress update notices whenever the plugin is active in the current admin context.
 
 ---
 
@@ -77,6 +101,7 @@ Example plugin header:
  * Version: 0.1.4
  * Requires at least: 6.0
  * Requires PHP: 8.1
+ * Update URI: https://github.com/owner/repo
  * Author: Techn
  * Author URI: https://techn.com.au
  * Text Domain: techn-example-plugin
