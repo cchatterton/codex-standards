@@ -56,6 +56,43 @@ or:
 
 ---
 
+# Techn Plugin Display Names
+
+Techn plugins should use the `TN` brand prefix in the visible WordPress plugin name unless the plugin-specific brief explicitly requires a different display name.
+
+Use:
+
+```text
+Plugin Name: TN Journey Graph
+Plugin Name: TN Sticky Posts
+```
+
+Do not use a generic feature name as the visible plugin name when the plugin is a Techn-owned plugin.
+
+For Techn plugins:
+
+```text
+Author: Techn
+Author URI: https://techn.com.au
+```
+
+The repository slug and text domain should still use the declared plugin slug.
+
+Example:
+
+```php
+/**
+ * Plugin Name: TN Example Plugin
+ * Description: Short description of what the plugin does.
+ * Version: 0.1.0
+ * Author: Techn
+ * Author URI: https://techn.com.au
+ * Text Domain: tn-example-plugin
+ */
+```
+
+---
+
 # Naming Convention
 
 Every plugin must use a short, unique prefix.
