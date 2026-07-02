@@ -337,6 +337,23 @@ Do not cache an equal-version release response for several hours. This can hide 
 
 Do not cache failed lookups in the release transient. A failed lookup is not release data and must not be allowed to block future update notices.
 
+When the GitHub API returns a forbidden, rate-limited, or otherwise blocked response for a public repository, the updater may fall back to GitHub's public latest-release redirect:
+
+```text
+https://github.com/{owner}/{repo}/releases/latest
+```
+
+The fallback must:
+
+- read the redirected release tag from `/releases/tag/{tag}`
+- strip the leading `v` before version comparison
+- construct the expected release asset URL using the configured asset filename
+- verify the expected ZIP asset URL is reachable before offering an update
+- store the fallback release data in the same successful release transient shape
+- clear any diagnostic transient after a successful fallback lookup
+
+The fallback must not offer an update if the redirected tag cannot be parsed or the expected ZIP asset cannot be verified.
+
 If diagnostics are useful, store failed lookup details in a separate plugin-specific diagnostic transient for a short period, such as 10 minutes. The diagnostic transient may include:
 
 - error type, such as `wp_error`, `http_error`, or `json_error`
