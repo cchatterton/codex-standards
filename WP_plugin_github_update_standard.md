@@ -28,7 +28,6 @@ Main plugin file:
 Release ZIP asset name:
 Author:
 Author URL:
-Plugin URI:
 Update URI:
 ```
 
@@ -42,7 +41,6 @@ Main plugin file: techn-example-plugin/techn-example-plugin.php
 Release ZIP asset name: techn-example-plugin.zip
 Author: Techn
 Author URL: https://techn.com.au
-Plugin URI: https://github.com/cchatterton/example-plugin/releases/latest
 Update URI: https://github.com/cchatterton/example-plugin
 ```
 
@@ -58,23 +56,19 @@ For the default Techn/AlphaSys GitHub updater pattern, use public repositories s
 
 ---
 
-## Plugin Header Update Links
+## Plugin Header Update Source
 
-Every GitHub-distributed plugin must include both a `Plugin URI` and an `Update URI` header.
+Every GitHub-distributed plugin must include an `Update URI` header and must omit the `Plugin URI` header.
 
-Use `Plugin URI` as an informational fallback link shown by WordPress in plugin row metadata:
+WordPress automatically renders `Plugin URI` as a **Visit plugin site** link on the Plugins screen. Do not declare `Plugin URI`; the GitHub and native update links supplied by the updater are the approved discovery and update paths.
 
-```text
-Plugin URI: https://github.com/{owner}/{repo}/releases/latest
-```
+When maintaining an existing plugin that still declares `Plugin URI`, remove that header in the next plugin release. Treat this as required release maintenance even when the feature change is otherwise unrelated. Confirm the resulting Plugins screen no longer shows **Visit plugin site** for that plugin.
 
 Use `Update URI` as the stable source identifier for the GitHub updater and to prevent accidental WordPress.org slug matching:
 
 ```text
 Update URI: https://github.com/{owner}/{repo}
 ```
-
-This static link is not the required update workflow. It exists only as a fallback for discovery and release auditing.
 
 The required update workflow must happen inside WordPress. The user must either be prompted by a native WordPress update notice or be able to trigger a WordPress-side update check that returns a native "update now" action without needing to visit GitHub.
 
@@ -98,7 +92,6 @@ Example plugin header:
 ```php
 /**
  * Plugin Name: Techn Example Plugin
- * Plugin URI: https://github.com/cchatterton/example-plugin
  * Description: Short description.
  * Version: 0.1.4
  * Requires at least: 6.0
@@ -561,7 +554,7 @@ WordPress must surface updates through the native plugin update UI.
 
 Inactive plugins cannot add dynamic row metadata or run their self-contained updater code. For plugins that must be updateable from Network Admin while otherwise unused on the main site, the plugin should support network activation safely so its updater is loaded in Network Admin while feature behaviour remains gated per site as needed.
 
-The static `Plugin URI` latest-release link is only a fallback for discovery and release auditing. It must not be treated as satisfying the required update workflow.
+Do not use a static `Plugin URI` as a fallback. Repository discovery belongs in the updater's explicit GitHub row metadata link; update discovery and installation belong in WordPress's native update UI.
 
 If an update does not appear immediately after publishing a release, use WordPress's native update mechanisms, including Dashboard > Updates > Check again or the plugin row "Check for updates" link.
 
@@ -646,6 +639,7 @@ Before finalising a plugin update, confirm:
 
 - plugin activates without fatal errors
 - plugin header version matches the version constant
+- plugin header omits `Plugin URI`, so WordPress does not render **Visit plugin site**
 - changelog has the new version
 - ZIP contains the plugin folder at the top level
 - ZIP does not include unrelated repository files
@@ -769,6 +763,7 @@ For hotfix-sensitive sites that want immediate update availability across multip
 
 When Codex changes a plugin that uses this standard, Codex must:
 
+- remove any existing `Plugin URI` header in the next release and verify **Visit plugin site** is absent from the Plugins screen
 - update the version number
 - update the version constant
 - update release notes
