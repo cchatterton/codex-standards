@@ -553,6 +553,18 @@ The handler must:
 5. call `wp_update_plugins()`
 6. redirect back to the Plugins screen
 
+The updater's forced-check detection must recognise its own plugin-row query key as well as WordPress's native forced-check request shapes. This ensures the manual action cannot reuse a plugin-specific cached release response.
+
+After `wp_update_plugins()` returns, the handler must read the rebuilt `update_plugins` site transient, inject the plugin's GitHub update data once more, and persist the result. This avoids losing the custom update entry when another update provider rewrites the transient during the same refresh.
+
+The redirect must carry a short result code and the Plugins screen must display a dismissible administrator notice confirming one of these outcomes:
+
+- an update is available
+- the installed version is current
+- the GitHub check failed
+
+A manual check must not fail silently. Error notices should remain generic and must not expose raw remote-response bodies or internal diagnostics.
+
 This link must trigger WordPress's native plugin update mechanism and return the user to the Plugins screen. It must not redirect users to `update-core.php` as the final destination, directly update plugin files, or require users to visit GitHub.
 
 This link is part of the required WordPress-native update workflow. After the check completes, WordPress should show the native update prompt and "update now" action when a newer GitHub release exists.
