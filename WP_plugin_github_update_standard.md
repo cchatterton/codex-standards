@@ -304,7 +304,26 @@ Do not reuse transient names between plugins.
 
 ## GitHub Release Lookup
 
-The updater should request:
+For hosted WordPress environments, prefer a small repository-controlled manifest as the first release lookup:
+
+```text
+https://raw.githubusercontent.com/{owner}/{repo}/main/update.json
+```
+
+The root-level manifest should contain only stable release metadata:
+
+```json
+{
+  "version": "0.1.4",
+  "body": "Short release summary."
+}
+```
+
+Construct the release details URL and expected ZIP URL from the configured repository, validated version, and configured asset name. Do not accept an arbitrary package URL from the manifest.
+
+This path avoids unauthenticated GitHub API quotas shared by managed hosting providers. Update the manifest in the same commit as the version bump and root release ZIP.
+
+The updater may use the GitHub latest-release API when the manifest is unavailable or invalid:
 
 ```text
 https://api.github.com/repos/{owner}/{repo}/releases/latest
@@ -335,7 +354,7 @@ Do not cache an equal-version release response for several hours. This can hide 
 
 Do not cache failed lookups in the release transient. A failed lookup is not release data and must not be allowed to block future update notices.
 
-When the GitHub API returns a forbidden, rate-limited, or otherwise blocked response for a public repository, the updater may fall back to GitHub's public latest-release redirect:
+When both the manifest and GitHub API are unavailable, forbidden, rate-limited, or otherwise blocked, the updater may fall back to GitHub's public latest-release redirect:
 
 ```text
 https://github.com/{owner}/{repo}/releases/latest
@@ -346,11 +365,12 @@ The fallback must:
 - read the redirected release tag from `/releases/tag/{tag}`
 - strip the leading `v` before version comparison
 - construct the expected release asset URL using the configured asset filename
-- verify the expected ZIP asset URL is reachable before offering an update
 - store the fallback release data in the same successful release transient shape
 - clear any diagnostic transient after a successful fallback lookup
 
-The fallback must not offer an update if the redirected tag cannot be parsed or the expected ZIP asset cannot be verified.
+Do not probe a GitHub release asset with `wp_remote_head()` before offering the update. GitHub's signed asset delivery path can reject `HEAD` from managed hosting networks even when WordPress's normal `GET` download succeeds. Asset existence is guaranteed by the release checklist and is verified by the actual WordPress upgrader request.
+
+The fallback must not offer an update if the redirected tag cannot be parsed into a valid version.
 
 If diagnostics are useful, store failed lookup details in a separate plugin-specific diagnostic transient for a short period, such as 10 minutes. The diagnostic transient may include:
 
@@ -623,20 +643,21 @@ Use this release sequence:
 1. Finish the code change.
 2. Bump the plugin header version.
 3. Bump the plugin version constant.
-4. Add release notes to `CHANGELOG.md`.
-5. Run available syntax/tests/build checks.
-6. Build the plugin ZIP.
-7. Verify the ZIP top-level folder.
-8. Commit the source changes.
-9. Push to GitHub.
-10. Create a GitHub release tag matching the version.
-11. Attach `plugin-slug.zip`.
-12. Verify the release asset is visible.
-13. Clear or bypass the plugin-specific GitHub release cache on a test site.
-14. In WordPress, use Dashboard > Updates > Check again.
-15. In WordPress, confirm the plugin row has **GitHub** and **Check for updates**, and does not have **Visit plugin site**.
-16. Confirm the update is offered on the Plugins page.
-17. Confirm WordPress installs the update.
+4. Update the root `update.json` manifest when the plugin uses manifest-first discovery.
+5. Add release notes to `CHANGELOG.md`.
+6. Run available syntax/tests/build checks.
+7. Build the plugin ZIP.
+8. Verify the ZIP top-level folder.
+9. Commit the source changes.
+10. Push to GitHub.
+11. Create a GitHub release tag matching the version.
+12. Attach `plugin-slug.zip`.
+13. Verify the release asset is visible.
+14. Clear or bypass the plugin-specific GitHub release cache on a test site.
+15. In WordPress, use Dashboard > Updates > Check again.
+16. In WordPress, confirm the plugin row has **GitHub** and **Check for updates**, and does not have **Visit plugin site**.
+17. Confirm the update is offered on the Plugins page.
+18. Confirm WordPress installs the update.
 
 Example GitHub CLI release command:
 
@@ -666,6 +687,7 @@ Before finalising a plugin update, confirm:
 - ZIP does not include unrelated repository files
 - GitHub release tag matches the plugin version
 - GitHub release includes the expected ZIP asset
+- root update manifest matches the plugin version when manifest-first discovery is used
 - the GitHub latest release API returns the new tag and expected asset
 - plugin-specific stale release cache has been cleared or bypassed during testing
 - WordPress detects the update from the Plugins page
