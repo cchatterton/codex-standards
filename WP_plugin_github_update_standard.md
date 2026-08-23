@@ -64,6 +64,11 @@ WordPress automatically renders `Plugin URI` as a **Visit plugin site** link on 
 
 When maintaining an existing plugin that still declares `Plugin URI`, remove that header in the next plugin release. Treat this as required release maintenance even when the feature change is otherwise unrelated. Confirm the resulting Plugins screen no longer shows **Visit plugin site** for that plugin.
 
+Removing **Visit plugin site** must not remove the WordPress-side update affordance. Treat these as separate, simultaneous requirements:
+
+- the plugin header must omit `Plugin URI`, so **Visit plugin site** is absent
+- the active plugin must add its own nonce-protected **Check for updates** row link for users who can update plugins
+
 Use `Update URI` as the stable source identifier for the GitHub updater and to prevent accidental WordPress.org slug matching:
 
 ```text
@@ -530,6 +535,8 @@ The plugin row must include a "GitHub" metadata link when the plugin is loaded i
 
 The plugin row must also include a "Check for updates" metadata link when the plugin is loaded in the current admin context.
 
+The expected Plugins-screen result is a **GitHub** metadata link and a **Check for updates** metadata link, with no **Visit plugin site** link. Do not use `Plugin URI` to produce or replace either required metadata link.
+
 The "Check for updates" link should point to a nonce-protected plugin-page action handled by the plugin, for example:
 
 ```php
@@ -615,8 +622,9 @@ Use this release sequence:
 12. Verify the release asset is visible.
 13. Clear or bypass the plugin-specific GitHub release cache on a test site.
 14. In WordPress, use Dashboard > Updates > Check again.
-15. In WordPress, go to the Plugins page and confirm the update is offered.
-16. Confirm WordPress installs the update.
+15. In WordPress, confirm the plugin row has **GitHub** and **Check for updates**, and does not have **Visit plugin site**.
+16. Confirm the update is offered on the Plugins page.
+17. Confirm WordPress installs the update.
 
 Example GitHub CLI release command:
 
@@ -640,6 +648,7 @@ Before finalising a plugin update, confirm:
 - plugin activates without fatal errors
 - plugin header version matches the version constant
 - plugin header omits `Plugin URI`, so WordPress does not render **Visit plugin site**
+- active plugin row includes **GitHub** and a nonce-protected **Check for updates** link for users who can update plugins
 - changelog has the new version
 - ZIP contains the plugin folder at the top level
 - ZIP does not include unrelated repository files
