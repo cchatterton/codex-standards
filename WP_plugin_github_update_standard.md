@@ -270,6 +270,7 @@ The updater must:
 - avoid long-lived "no update" release caches that hide a release published shortly after a check
 - never store failed GitHub lookups in the same transient used as release data
 - store failed lookup diagnostics in a separate short-lived diagnostic transient when diagnostics are useful
+- use a separate short-lived failure backoff so repeated admin page loads do not retry a failed remote lookup
 - clear the plugin-specific GitHub release cache and any diagnostic transient after successful plugin upgrader runs
 - fail silently and safely when GitHub is unreachable
 
@@ -304,7 +305,7 @@ Do not reuse transient names between plugins.
 
 ## GitHub Release Lookup
 
-For hosted WordPress environments, prefer a small repository-controlled manifest as the first release lookup:
+Every public GitHub-distributed plugin must use a small repository-controlled manifest as its first release lookup:
 
 ```text
 https://raw.githubusercontent.com/{owner}/{repo}/main/update.json
@@ -323,7 +324,17 @@ Construct the release details URL and expected ZIP URL from the configured repos
 
 This path avoids unauthenticated GitHub API quotas shared by managed hosting providers. Update the manifest in the same commit as the version bump and root release ZIP.
 
-The updater may use the GitHub latest-release API when the manifest is unavailable or invalid:
+The manifest lookup is mandatory, not an optional optimisation. A normal successful update check must not call the GitHub API when the manifest is available and valid.
+
+Use this fallback order:
+
+1. Repository-controlled `update.json` manifest.
+2. GitHub's public latest-release redirect.
+3. GitHub's latest-release API only as a last resort.
+
+This order prevents a fleet of WordPress sites from consuming the low unauthenticated API quota associated with a shared hosting IP address.
+
+The updater may use the GitHub latest-release API only when both the manifest and public latest-release redirect are unavailable or invalid:
 
 ```text
 https://api.github.com/repos/{owner}/{repo}/releases/latest
@@ -354,7 +365,7 @@ Do not cache an equal-version release response for several hours. This can hide 
 
 Do not cache failed lookups in the release transient. A failed lookup is not release data and must not be allowed to block future update notices.
 
-When both the manifest and GitHub API are unavailable, forbidden, rate-limited, or otherwise blocked, the updater may fall back to GitHub's public latest-release redirect:
+When the manifest is unavailable or invalid, the updater should next use GitHub's public latest-release redirect:
 
 ```text
 https://github.com/{owner}/{repo}/releases/latest
@@ -371,6 +382,25 @@ The fallback must:
 Do not probe a GitHub release asset with `wp_remote_head()` before offering the update. GitHub's signed asset delivery path can reject `HEAD` from managed hosting networks even when WordPress's normal `GET` download succeeds. Asset existence is guaranteed by the release checklist and is verified by the actual WordPress upgrader request.
 
 The fallback must not offer an update if the redirected tag cannot be parsed into a valid version.
+
+### Rate-limit handling
+
+HTTP `429 Too Many Requests` and GitHub API rate-limit responses must be treated as expected temporary lookup failures.
+
+The updater must:
+
+- stop the current lookup without retrying the same rate-limited endpoint
+- avoid calling the GitHub API again from ordinary admin page loads during a short backoff period, such as 10 minutes
+- keep backoff or diagnostic state separate from the successful release transient
+- allow an authorised, nonce-protected manual update check to clear the backoff and try the manifest again
+- continue normal plugin operation while update discovery is unavailable
+- show only a generic failure notice after a manual check
+
+The updater must not:
+
+- expose raw GitHub response messages such as `Too Many Requests` in WordPress notices
+- retry a rate-limited request repeatedly during the same update check
+- call the GitHub API merely to enrich release details when a valid manifest already supplied the current version and release summary
 
 If diagnostics are useful, store failed lookup details in a separate plugin-specific diagnostic transient for a short period, such as 10 minutes. The diagnostic transient may include:
 
@@ -583,7 +613,7 @@ The redirect must carry a short result code and the Plugins screen must display 
 - the installed version is current
 - the GitHub check failed
 
-A manual check must not fail silently. Error notices should remain generic and must not expose raw remote-response bodies or internal diagnostics.
+A manual check must not fail silently. Error notices should remain generic and must not expose raw remote-response bodies, internal diagnostics, HTTP status text, or GitHub rate-limit messages.
 
 This link must trigger WordPress's native plugin update mechanism and return the user to the Plugins screen. It must not redirect users to `update-core.php` as the final destination, directly update plugin files, or require users to visit GitHub.
 
@@ -612,6 +642,7 @@ Recommended behaviour:
 - keep equal-version or older-version successful lookups cached for only 1-15 minutes
 - do not store failed lookups in the release transient
 - store failed lookup diagnostics separately only when useful
+- apply a short failure backoff after HTTP, DNS, SSL, JSON, or rate-limit failures so ordinary admin requests do not hammer the remote endpoint
 - bypass the plugin-specific release cache when WordPress is performing a forced update check
 - clear the plugin-specific release cache and any diagnostic transient after successful plugin updater runs
 - let WordPress decide when to refresh plugin update data
@@ -696,6 +727,8 @@ Before finalising a plugin update, confirm:
 - failed GitHub HTTP, SSL, DNS, or JSON responses do not write `no_update`
 - failed GitHub HTTP, SSL, DNS, or JSON responses do not write an error sentinel into the release transient
 - any updater diagnostics are stored separately from release data
+- a valid manifest check does not also call the GitHub API
+- HTTP 429 responses activate short backoff and do not expose raw GitHub error text in WordPress
 
 ---
 
