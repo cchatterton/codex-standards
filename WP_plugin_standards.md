@@ -385,6 +385,12 @@ Avoid global styling.
 
 Do not style generic elements without a plugin wrapper.
 
+Use `rem` for every dimension in plugin-authored CSS, including spacing, sizing, positioning, borders, radii, typography, and media-query breakpoints.
+
+Do not introduce `px` values. When modifying an existing CSS rule, convert any `px` dimensions in that rule to their `rem` equivalents, using `1rem = 16px` as the conversion baseline.
+
+Third-party, vendor, and generated CSS is exempt and should not be edited solely to convert units.
+
 ---
 
 # JavaScript Standard

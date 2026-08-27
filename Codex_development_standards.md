@@ -147,6 +147,14 @@ Use the existing CSS architecture.
 - Follow existing naming conventions.
 - Avoid introducing styling frameworks unless explicitly requested.
 
+### CSS Units
+
+- Use `rem` for all dimensions in project-authored CSS, including spacing, sizing, positioning, borders, radii, typography, and media-query breakpoints.
+- Do not introduce `px` values in project-authored CSS.
+- When editing an existing CSS rule, convert any `px` dimensions in that rule to their `rem` equivalents.
+- Treat `1rem` as the standard equivalent of `16px` when converting existing values. For example, use `0.0625rem` for a former one-pixel value.
+- Do not edit third-party, vendor, or generated CSS solely to convert its units; these files are outside the project-authored CSS standard.
+
 ### Styling Principles
 
 - Keep specificity low.
