@@ -104,6 +104,8 @@ Example plugin header:
  * Update URI: https://github.com/owner/repo
  * Author: Techn
  * Author URI: https://techn.com.au
+ * License: GPL v2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: techn-example-plugin
  */
 ```
@@ -171,6 +173,8 @@ The ZIP must contain the plugin folder as the top-level directory:
 ```text
 plugin-slug/
   plugin-slug.php
+  LICENSE
+  readme.txt
   readme.md
   functions/
   includes/
@@ -675,20 +679,22 @@ Use this release sequence:
 2. Bump the plugin header version.
 3. Bump the plugin version constant.
 4. Update the root `update.json` manifest when the plugin uses manifest-first discovery.
-5. Add release notes to `CHANGELOG.md`.
-6. Run available syntax/tests/build checks.
-7. Build the plugin ZIP.
-8. Verify the ZIP top-level folder.
-9. Commit the source changes.
-10. Push to GitHub.
-11. Create a GitHub release tag matching the version.
-12. Attach `plugin-slug.zip`.
-13. Verify the release asset is visible.
-14. Clear or bypass the plugin-specific GitHub release cache on a test site.
-15. In WordPress, use Dashboard > Updates > Check again.
-16. In WordPress, confirm the plugin row has **GitHub** and **Check for updates**, and does not have **Visit plugin site**.
-17. Confirm the update is offered on the Plugins page.
-18. Confirm WordPress installs the update.
+5. Confirm the plugin header declares its GPL-compatible licence and the package contains `LICENSE`.
+6. Update `readme.txt` and confirm its Stable tag matches the plugin version.
+7. Add release notes to `CHANGELOG.md`.
+8. Run available syntax/tests/build checks.
+9. Build the plugin ZIP.
+10. Verify the ZIP top-level folder and required licence/readme files.
+11. Commit the source changes.
+12. Push to GitHub.
+13. Create a GitHub release tag matching the version.
+14. Attach `plugin-slug.zip`.
+15. Verify the release asset is visible.
+16. Clear or bypass the plugin-specific GitHub release cache on a test site.
+17. In WordPress, use Dashboard > Updates > Check again.
+18. In WordPress, confirm the plugin row has **GitHub** and **Check for updates**, and does not have **Visit plugin site**.
+19. Confirm the update is offered on the Plugins page.
+20. Confirm WordPress installs the update.
 
 Example GitHub CLI release command:
 
@@ -711,6 +717,9 @@ Before finalising a plugin update, confirm:
 
 - plugin activates without fatal errors
 - plugin header version matches the version constant
+- plugin header declares a WordPress-compatible GPL licence
+- distributable plugin contains `LICENSE` and a WordPress.org-format `readme.txt`
+- `readme.txt` Stable tag matches the plugin version
 - plugin header omits `Plugin URI`, so WordPress does not render **Visit plugin site**
 - active plugin row includes **GitHub** and a nonce-protected **Check for updates** link for users who can update plugins
 - changelog has the new version

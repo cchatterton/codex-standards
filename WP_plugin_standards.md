@@ -38,6 +38,8 @@ Example:
  * Description: Short description of what the plugin does.
  * Version: 0.1.0
  * Author: AlphaSys
+ * License: GPL v2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: alphasys-example-plugin
  */
 ```
@@ -50,6 +52,8 @@ or:
  * Description: Short description of what the plugin does.
  * Version: 0.1.0
  * Author: Techn
+ * License: GPL v2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: techn-example-plugin
  */
 ```
@@ -87,6 +91,8 @@ Example:
  * Version: 0.1.0
  * Author: Techn
  * Author URI: https://techn.com.au
+ * License: GPL v2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: tn-example-plugin
  */
 ```
@@ -144,6 +150,8 @@ Use this as the default scaffold:
 ```text
 plugin-slug/
 ├── plugin-slug.php
+├── LICENSE
+├── readme.txt
 ├── readme.md
 ├── functions/
 │   ├── setup.php
@@ -183,6 +191,8 @@ Example:
  * Description: Short description of the plugin.
  * Version: 0.1.0
  * Author: AlphaSys
+ * License: GPL v2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: alphasys-example-plugin
  */
 
@@ -413,7 +423,29 @@ Use vanilla JS unless the plugin specifically requires jQuery or another library
 
 # Readme Standard
 
-Each plugin must include a simple `readme.md` with:
+Every distributable plugin must include a WordPress.org-format `readme.txt`, even when the plugin is currently private or distributed through GitHub.
+
+The header must include:
+
+```text
+=== Plugin Name ===
+Contributors: verified-wordpress-org-usernames
+Tags: up to five relevant tags
+Requires at least: 6.0
+Tested up to: the latest version actually tested
+Stable tag: 0.1.0
+Requires PHP: 8.1
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+```
+
+The `Stable tag` must match the plugin header version. Do not claim a WordPress version under `Tested up to` until the plugin has actually been tested with that version. Contributor usernames must resolve to real WordPress.org profiles; confirm them rather than inventing them.
+
+The file must include a short description of no more than 150 characters, plus Description, Installation, and Changelog sections. Add FAQ, Screenshots, Upgrade Notice, and External services sections when applicable. Disclose every external service, what data is sent, when it is sent, and links to the service's terms and privacy policy.
+
+Validate `readme.txt` with the official WordPress readme validator before a WordPress.org submission.
+
+A repository may also include a `readme.md` for GitHub and developer documentation. It does not replace `readme.txt`. A simple `readme.md` may use:
 
 ```text
 # Plugin Name
@@ -432,6 +464,21 @@ Status: POC / MVP / Production
 
 ## Future Considerations
 ```
+
+---
+
+# Licensing Standard
+
+Every WordPress plugin must be licensed under `GPL v2 or later` or another WordPress-compatible GPL licence.
+
+The main plugin header must contain:
+
+```text
+License: GPL v2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+```
+
+The distributable plugin folder must contain a `LICENSE` file that clearly declares the applicable GPL terms and links to the canonical licence text. Third-party code, fonts, images, and other bundled assets must use GPL-compatible licences, with their copyright and licence details retained and documented.
 
 ---
 

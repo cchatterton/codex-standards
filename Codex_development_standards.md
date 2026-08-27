@@ -305,6 +305,8 @@ Code should largely explain itself.
 
 ## Testing Expectations
 
+For WordPress plugin work, also follow `WP_plugin_standards.md`: every distributable plugin must declare a GPL-compatible licence in its header, include a `LICENSE` file, and include a WordPress.org-format `readme.txt`. A GitHub `readme.md` is optional and never substitutes for `readme.txt`.
+
 Before completing work:
 
 ### Verify
