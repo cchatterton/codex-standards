@@ -11,6 +11,22 @@ Every plugin brief should include four inputs:
 3. Branding and UX Standards Sheet
 4. Plugin-specific specification
 
+The plugin-specific specification should declare one interface branding mode:
+
+```text
+Branding Mode: Author Branded
+Author Brand: AlphaSys or Techn
+```
+
+or:
+
+```text
+Branding Mode: Extension Branded
+Extended Product: Gravity Forms, WooCommerce, or another named product
+```
+
+Author Branded interfaces use the declared AlphaSys or Techn identity while preserving WordPress-native behaviour. Extension Branded interfaces follow the visual and interaction conventions of the product being extended. Branding mode does not change the plugin author, prefix, text domain, licence, or repository ownership.
+
 The plugin-specific specification must clearly declare whether the plugin is:
 
 ```text
@@ -490,17 +506,18 @@ When building a plugin from this standard, Codex must:
 1. Follow the supplied Codex Code Standards Sheet
 2. Follow this Codex Plugin Standards Sheet
 3. Follow the Branding and UX Standards Sheet for all user-facing and administrator-facing work
-4. Follow the plugin-specific specification
-5. Use the declared author: AlphaSys or Techn
-6. Use the declared plugin slug, prefix, and text domain
-7. Keep the scaffold minimal
-8. Avoid unnecessary files, classes, build steps, or abstractions
-9. Produce working WordPress-native PHP, JS, and CSS
-10. Prioritise readable code over clever code
-11. Ask only if a missing decision blocks implementation
-12. Treat changes to distributable plugin files as release work by default
-13. Follow the repository's complete version, changelog, ZIP, commit, push, tag, and release process without requiring a separate release prompt
-14. Verify the published release and expected ZIP asset before reporting completion
+4. Declare and consistently apply Author Branded or Extension Branded mode
+5. Follow the plugin-specific specification
+6. Use the declared author: AlphaSys or Techn
+7. Use the declared plugin slug, prefix, and text domain
+8. Keep the scaffold minimal
+9. Avoid unnecessary files, classes, build steps, or abstractions
+10. Produce working WordPress-native PHP, JS, and CSS
+11. Prioritise readable code over clever code
+12. Ask only if a missing decision blocks implementation
+13. Treat changes to distributable plugin files as release work by default
+14. Follow the repository's complete version, changelog, ZIP, commit, push, tag, and release process without requiring a separate release prompt
+15. Verify the published release and expected ZIP asset before reporting completion
 
 Repository-only documentation, tests, or development tooling changes may be committed and pushed without a plugin version release when they do not alter the distributable package. An explicit local-only, draft, review, or no-release instruction also overrides the default release requirement.
 

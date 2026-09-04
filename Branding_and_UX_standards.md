@@ -55,6 +55,74 @@ If no complete brand system exists, derive the smallest consistent set of decisi
 
 ---
 
+## Branding Modes
+
+Every user-facing project or feature must use one of two branding modes:
+
+1. Author Branded
+2. Extension Branded
+
+The project specification should declare the mode. If it does not, infer it from where the interface lives and what users understand themselves to be using. Ask only when the distinction would materially change the result.
+
+Branding mode controls the interface treatment. It does not change the plugin author, code namespace, licence, repository ownership, or required attribution.
+
+### Author Branded
+
+Use Author Branded mode when the interface is primarily an AlphaSys or Techn product experience.
+
+Examples include:
+
+- A standalone Techn plugin settings area
+- An AlphaSys client portal
+- A product-owned dashboard or workflow
+- A public-facing feature whose identity is AlphaSys or Techn
+
+In this mode:
+
+- Use the declared author brand: AlphaSys or Techn.
+- Use approved author colours, typography, logo treatment, voice, and design tokens.
+- Keep platform-native structure and behaviour beneath the branded presentation.
+- Use brand emphasis selectively so operational interfaces remain clear and familiar.
+- Do not introduce a second visual identity unless the specification requires co-branding.
+
+Author Branded does not permit replacing standard platform behaviour with custom interaction merely for visual distinction.
+
+### Extension Branded
+
+Use Extension Branded mode when the work extends an existing product and users should experience the feature as a natural part of that product.
+
+Examples include:
+
+- A Gravity Forms field, feed, settings panel, or entry action
+- An extension for WooCommerce or another established WordPress product
+- A feature embedded inside a third-party application's existing workflow
+
+In this mode:
+
+- Follow the extended product's current layout, component, spacing, terminology, icon, interaction, and feedback patterns.
+- Reuse the product's supported APIs, components, CSS classes, design tokens, and extension points where appropriate.
+- Place actions and settings where users of that product expect them.
+- Match the product's visual density and hierarchy before adding custom styling.
+- Keep AlphaSys or Techn identity to appropriate authorship, support, documentation, and repository metadata unless visible co-branding is explicitly required.
+- Do not add prominent author-brand colours, logos, banners, or application shells that make the extension feel separate from the product.
+- Do not copy private assets or unsupported implementation details solely to imitate the product.
+- Do not imply that the extension is officially produced, endorsed, or owned by the extended product unless that claim is authorised.
+- Use third-party names, logos, and trademarks only where permitted and necessary to identify compatibility.
+
+Extension Branded means visually and behaviourally compatible, not deceptively official.
+
+### Choosing the Mode
+
+Use Author Branded when the user is primarily interacting with an AlphaSys or Techn product.
+
+Use Extension Branded when the user is primarily interacting with the product being extended and the new feature sits inside that product's interface or workflow.
+
+For mixed experiences, choose a primary mode for each surface rather than blending both brands everywhere. For example, an embedded Gravity Forms settings panel may be Extension Branded while a separate Techn account portal remains Author Branded.
+
+Document the selected mode in the implementation notes and apply it consistently across the relevant surface.
+
+---
+
 ## Premium Quality Principles
 
 Premium interfaces should demonstrate:
@@ -108,6 +176,7 @@ In WordPress admin interfaces:
 - Make custom branding subtle enough that the interface still feels part of WordPress admin.
 - Do not build a visually isolated application shell inside WordPress unless the specification genuinely requires one.
 - Do not remove or disguise familiar WordPress behaviour merely to make the interface look different.
+- When using Extension Branded mode, follow the extended plugin's supported admin patterns within the surrounding WordPress conventions.
 
 On the public-facing site, follow the active site's design system and front-end conventions rather than WordPress admin styling.
 
@@ -301,6 +370,8 @@ Avoid:
 Before finalising user-facing work, verify:
 
 - The interface follows approved brand assets and project conventions.
+- The selected branding mode is documented and consistently applied.
+- Extension Branded work feels native to the extended product without implying unauthorised endorsement.
 - The result feels consistent with the host platform.
 - Primary tasks and actions are immediately clear.
 - Keyboard, focus, labels, contrast, and status feedback are usable.
@@ -312,6 +383,7 @@ Before finalising user-facing work, verify:
 
 The final response must state:
 
+- Whether Author Branded or Extension Branded mode was used
 - Which branding and UX standards were applied
 - What interface states and viewport sizes were checked
 - What accessibility validation was performed
