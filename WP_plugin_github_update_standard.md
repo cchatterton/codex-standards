@@ -83,7 +83,9 @@ The self-contained updater must inject native WordPress update notices whenever 
 
 ## Version Discipline
 
-Every plugin change that should be installable through WordPress must include:
+Every completed change that alters the distributable plugin package, plugin metadata, runtime behaviour, admin behaviour, front-end behaviour, or bundled assets must be released through WordPress. A request to change such a plugin is a request to complete the release unless the user explicitly asks for a draft, local-only work, review, or no release.
+
+The release must include:
 
 1. A plugin header version bump.
 2. A matching plugin version constant bump.
@@ -117,6 +119,8 @@ define('TEP_VERSION', '0.1.4');
 ```
 
 The version in the plugin header and the version constant must always match.
+
+Use the next valid semantic version after inspecting both the current source version and published GitHub releases. Use a patch increment for backward-compatible fixes by default, and a minor or major increment when the requested scope or repository policy requires it. Never reuse, move, or overwrite an existing release tag.
 
 Use tags in this format:
 
@@ -673,7 +677,7 @@ But update checking and updating should normally live on the Plugins page.
 
 ## Release Process
 
-Use this release sequence:
+Use this release sequence for every change covered by the default release requirement. Do not stop after editing, testing, committing, pushing, or building the ZIP:
 
 1. Finish the code change.
 2. Bump the plugin header version.
@@ -695,6 +699,12 @@ Use this release sequence:
 18. In WordPress, confirm the plugin row has **GitHub** and **Check for updates**, and does not have **Visit plugin site**.
 19. Confirm the update is offered on the Plugins page.
 20. Confirm WordPress installs the update.
+
+The task is not complete until the remote commit, release tag, GitHub release, and expected ZIP asset have been verified. WordPress-side installation checks may be reported as pending only when the environment or access required to perform them is unavailable.
+
+Repository-only documentation, tests, CI configuration, and development tooling changes do not require a plugin release when they do not change the distributable ZIP. They must still be committed and pushed when repository write access is available.
+
+If release credentials, repository permissions, CI, GitHub, or the WordPress test environment is unavailable, Codex must complete every safe available release step, identify the exact unfinished step, and report the work as blocked or partially delivered. It must not silently downgrade a release task to source-only delivery.
 
 Example GitHub CLI release command:
 
@@ -852,10 +862,14 @@ When Codex changes a plugin that uses this standard, Codex must:
 - update the version number
 - update the version constant
 - update release notes
-- rebuild the plugin ZIP if publishing a release
+- rebuild and verify the plugin ZIP
 - push source changes
-- create the GitHub release when asked or when release publishing is in scope
+- create the GitHub release by default for every change to the distributable plugin
 - verify the release asset exists
+- verify the remote commit and release tag
+- report the released version and release URL
 - tell the user whether PHP lint/tests were run
+
+Codex may omit the plugin release only when the change is repository-only and does not alter the distributable ZIP, or when the user explicitly requests a draft, local-only change, review, or no release. Any external blocker must be stated explicitly; it does not make source-only delivery a completed release.
 
 If PHP is not available locally, Codex must say so in the final response.

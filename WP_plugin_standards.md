@@ -496,6 +496,11 @@ When building a plugin from this standard, Codex must:
 8. Produce working WordPress-native PHP, JS, and CSS
 9. Prioritise readable code over clever code
 10. Ask only if a missing decision blocks implementation
+11. Treat changes to distributable plugin files as release work by default
+12. Follow the repository's complete version, changelog, ZIP, commit, push, tag, and release process without requiring a separate release prompt
+13. Verify the published release and expected ZIP asset before reporting completion
+
+Repository-only documentation, tests, or development tooling changes may be committed and pushed without a plugin version release when they do not alter the distributable package. An explicit local-only, draft, review, or no-release instruction also overrides the default release requirement.
 
 If there is a conflict between documents, priority order is:
 

@@ -34,6 +34,8 @@ Codex must:
 - Avoid unnecessary dependencies
 - Preserve existing behaviour unless explicitly instructed otherwise
 - Apply security, accessibility, performance, and maintainability standards by default
+- Complete the repository's applicable versioning, packaging, commit, push, and release workflow after making changes unless the task explicitly excludes release
+- Treat a release blocker as an incomplete task: complete all safe steps, report the exact blocker, and never silently stop at local changes
 
 ## Compliance Check
 
@@ -44,6 +46,7 @@ The final response should include:
 - What was changed
 - Which standards were applied
 - Any testing or validation performed
+- The release status, including the published version or a clear reason no release was required
 - Any known limitations or follow-up items
 
 ## Default Rule

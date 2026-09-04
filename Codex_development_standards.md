@@ -339,6 +339,25 @@ Make the smallest safe change necessary.
 
 ---
 
+## Release and Delivery
+
+Finishing an implementation includes delivering it through the repository's established release process.
+
+### Rules
+
+- Inspect the repository's versioning, changelog, packaging, CI, deployment, and release conventions before changing code.
+- When a change affects distributable code, assets, configuration, metadata, or user-visible behaviour, complete the applicable version bump, changelog, build, commit, push, tag, and release steps by default.
+- Do not wait for a separate request to release a completed change when the repository has an established release workflow.
+- Repository-only documentation, tests, and development tooling changes should still be committed and pushed, but do not require a product release unless they alter the distributed package or the task requires one.
+- An explicit request for a draft, local-only change, review, or no release overrides the default release requirement.
+- Never overwrite or reuse an existing release tag. Determine the next valid version from the repository's current version and published releases.
+- Use a patch version for backward-compatible fixes by default; use a minor or major version when the scope or project versioning policy requires it.
+- Run the relevant validation before publishing and verify the remote commit, tag, release, and required assets after publishing.
+- Do not describe work as complete while required release steps remain unfinished.
+- If credentials, permissions, CI, hosting, or another external dependency blocks release, complete every safe available step and report the exact blocker and remaining action.
+
+---
+
 ## Output Expectations
 
 Codex should deliver:
@@ -350,6 +369,7 @@ Codex should deliver:
 - No invented dependencies
 - Clear implementation notes
 - Clear testing notes where appropriate
+- Clear release status, including the version, tag, and published artifact when applicable
 
 ---
 
