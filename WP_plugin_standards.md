@@ -25,7 +25,7 @@ Branding Mode: Extension Branded
 Extended Product: Gravity Forms, WooCommerce, or another named product
 ```
 
-Author Branded interfaces use the declared AlphaSys or Techn identity while preserving WordPress-native behaviour. Extension Branded interfaces follow the visual and interaction conventions of the product being extended. Branding mode does not change the plugin author, prefix, text domain, licence, or repository ownership.
+Author Branded interfaces visibly use the declared AlphaSys or Techn identity while preserving WordPress-native behaviour. Extension Branded interfaces are still AlphaSys or Techn products, but keep the author brand discreet while following the visual and interaction conventions of the product being extended. Branding mode does not change the plugin author, ownership, prefix, text domain, licence, support responsibility, or repository ownership.
 
 The plugin-specific specification must clearly declare whether the plugin is:
 

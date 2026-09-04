@@ -64,7 +64,7 @@ Every user-facing project or feature must use one of two branding modes:
 
 The project specification should declare the mode. If it does not, infer it from where the interface lives and what users understand themselves to be using. Ask only when the distinction would materially change the result.
 
-Branding mode controls the interface treatment. It does not change the plugin author, code namespace, licence, repository ownership, or required attribution.
+Branding mode controls the interface treatment. Every product remains authored, owned, maintained, and supported by the declared AlphaSys or Techn brand. The mode does not change the plugin author, code namespace, licence, repository ownership, or required attribution.
 
 ### Author Branded
 
@@ -89,7 +89,7 @@ Author Branded does not permit replacing standard platform behaviour with custom
 
 ### Extension Branded
 
-Use Extension Branded mode when the work extends an existing product and users should experience the feature as a natural part of that product.
+Use Extension Branded mode when an AlphaSys or Techn product extends another product and users should experience the feature as a natural part of the product being extended.
 
 Examples include:
 
@@ -103,13 +103,14 @@ In this mode:
 - Reuse the product's supported APIs, components, CSS classes, design tokens, and extension points where appropriate.
 - Place actions and settings where users of that product expect them.
 - Match the product's visual density and hierarchy before adding custom styling.
-- Keep AlphaSys or Techn identity to appropriate authorship, support, documentation, and repository metadata unless visible co-branding is explicitly required.
+- Preserve the declared AlphaSys or Techn authorship and ownership throughout the product.
+- Keep visible author branding discreet and subordinate to the extended product's interface, using it where appropriate for authorship, support, documentation, settings metadata, and repository information.
 - Do not add prominent author-brand colours, logos, banners, or application shells that make the extension feel separate from the product.
 - Do not copy private assets or unsupported implementation details solely to imitate the product.
 - Do not imply that the extension is officially produced, endorsed, or owned by the extended product unless that claim is authorised.
 - Use third-party names, logos, and trademarks only where permitted and necessary to identify compatibility.
 
-Extension Branded means visually and behaviourally compatible, not deceptively official.
+Extension Branded means an AlphaSys or Techn product that is visually and behaviourally compatible with what it extends. It does not mean hiding ownership, surrendering product identity, or presenting the extension as deceptively official.
 
 ### Choosing the Mode
 
