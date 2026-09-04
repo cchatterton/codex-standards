@@ -4,11 +4,12 @@
 
 This standard defines how AlphaSys and Techn WordPress plugins should be scaffolded, named, organised, and handed to Codex for development.
 
-Every plugin brief should include three inputs:
+Every plugin brief should include four inputs:
 
 1. Codex Code Standards Sheet
 2. Codex Plugin Standards Sheet
-3. Plugin-specific specification
+3. Branding and UX Standards Sheet
+4. Plugin-specific specification
 
 The plugin-specific specification must clearly declare whether the plugin is:
 
@@ -488,17 +489,18 @@ When building a plugin from this standard, Codex must:
 
 1. Follow the supplied Codex Code Standards Sheet
 2. Follow this Codex Plugin Standards Sheet
-3. Follow the plugin-specific specification
-4. Use the declared author: AlphaSys or Techn
-5. Use the declared plugin slug, prefix, and text domain
-6. Keep the scaffold minimal
-7. Avoid unnecessary files, classes, build steps, or abstractions
-8. Produce working WordPress-native PHP, JS, and CSS
-9. Prioritise readable code over clever code
-10. Ask only if a missing decision blocks implementation
-11. Treat changes to distributable plugin files as release work by default
-12. Follow the repository's complete version, changelog, ZIP, commit, push, tag, and release process without requiring a separate release prompt
-13. Verify the published release and expected ZIP asset before reporting completion
+3. Follow the Branding and UX Standards Sheet for all user-facing and administrator-facing work
+4. Follow the plugin-specific specification
+5. Use the declared author: AlphaSys or Techn
+6. Use the declared plugin slug, prefix, and text domain
+7. Keep the scaffold minimal
+8. Avoid unnecessary files, classes, build steps, or abstractions
+9. Produce working WordPress-native PHP, JS, and CSS
+10. Prioritise readable code over clever code
+11. Ask only if a missing decision blocks implementation
+12. Treat changes to distributable plugin files as release work by default
+13. Follow the repository's complete version, changelog, ZIP, commit, push, tag, and release process without requiring a separate release prompt
+14. Verify the published release and expected ZIP asset before reporting completion
 
 Repository-only documentation, tests, or development tooling changes may be committed and pushed without a plugin version release when they do not alter the distributable package. An explicit local-only, draft, review, or no-release instruction also overrides the default release requirement.
 
@@ -506,4 +508,5 @@ If there is a conflict between documents, priority order is:
 
 1. Plugin-specific specification
 2. Codex Plugin Standards Sheet
-3. Codex Code Standards Sheet
+3. Branding and UX Standards Sheet
+4. Codex Code Standards Sheet

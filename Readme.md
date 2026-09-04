@@ -7,6 +7,7 @@ Before making any code changes, Codex must review and follow the development sta
 Codex must ensure all proposed solutions comply with:
 
 - The general Codex development standards
+- The branding and UX standard, where user-facing or administrator-facing work is involved
 - The WordPress plugin development standards, where plugin work is involved
 - The WordPress plugin GitHub update standard, where plugin update delivery from GitHub is involved
 - Any project-specific specification or implementation brief provided for the task
@@ -18,8 +19,9 @@ When standards overlap, follow this order:
 1. The current task specification
 2. Project-specific standards
 3. WordPress plugin standards
-4. General Codex development standards
-5. Existing codebase patterns
+4. Branding and UX standards
+5. General Codex development standards
+6. Existing codebase patterns
 
 ## Working Rules
 

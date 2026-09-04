@@ -6,6 +6,8 @@ This file defines the general development standards Codex must follow when worki
 
 These standards apply unless a more specific project, plugin, theme, or client specification overrides them.
 
+For user-facing or administrator-facing work, also follow `Branding_and_UX_standards.md`.
+
 ---
 
 ## Core Principles
