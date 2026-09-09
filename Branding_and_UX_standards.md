@@ -418,6 +418,37 @@ Use spacing, typography, alignment, and grouping before adding borders, shadows,
 
 ---
 
+## Header Version Watermark
+
+Every custom product header must display the current product or plugin version as a subtle watermark in the top-right corner.
+
+Use this format:
+
+```text
+v1.2.3
+```
+
+### Rules
+
+- Display the version belonging to the AlphaSys or Techn product, plugin, or extension—not the version of WordPress or the third-party product being extended.
+- Read the value from the canonical plugin version constant or build metadata wherever possible. Do not maintain a separate hardcoded display version that can drift from the released version.
+- Keep the watermark visually quiet through restrained size, weight, and colour while maintaining readable contrast.
+- Present it as plain, non-interactive text. Do not style it as a button, status pill, promotional badge, or primary label.
+- Align it to the header's top-right padding inset, consistent with the header layout grid.
+- Keep it separate from primary actions, navigation, status controls, and product titles.
+- Ensure the header establishes the correct positioning context if absolute positioning is used.
+- At narrow widths, preserve the watermark at the top-right of the header without allowing it to overlap, clip, or obscure the title, description, navigation, or actions. Let the header reflow or reserve space for it rather than hiding it.
+- Provide an accessible name such as `Version 1.2.3` when the visible abbreviated value would otherwise be unclear to assistive technology.
+- Do not add a new decorative header solely to display the version when the interface does not otherwise use a custom product header. Place the version in the most appropriate existing product metadata area instead.
+
+In Author Branded mode, the watermark should use the author brand's restrained secondary text treatment.
+
+In Extension Branded mode, the watermark should follow the extended product's typography and spacing conventions while continuing to show the AlphaSys or Techn extension's own version.
+
+The watermark must update as part of every release and must match the plugin header, version constant, stable tag, update manifest, and release tag where those values apply.
+
+---
+
 ## Colour, Typography, and Effects
 
 Colour must communicate hierarchy or state, not act as decoration alone.
@@ -584,6 +615,9 @@ Before finalising user-facing work, verify:
 - The interface follows approved brand assets and project conventions.
 - The selected branding mode is documented and consistently applied.
 - Extension Branded work feels native to the extended product without implying unauthorised endorsement.
+- Custom product headers show the correct current version as a top-right watermark.
+- The displayed watermark version matches all canonical release version sources.
+- The watermark remains readable and does not overlap header content at representative viewport sizes and zoom levels.
 - The result feels consistent with the host platform.
 - Primary tasks and actions are immediately clear.
 - Keyboard, focus, labels, contrast, and status feedback are usable.
