@@ -6,6 +6,15 @@ This standard defines how AlphaSys and Techn Salesforce unmanaged packages are d
 
 An unmanaged package is an **initial distribution of editable Salesforce metadata**. It is not an in-place upgrade mechanism. Plan later changes as controlled metadata deployments to each installed org, with their own validation and release record. Do not copy the WordPress GitHub ZIP updater workflow into Salesforce.
 
+## Default Development Org
+
+Use this Salesforce Developer Edition org as the default development and validation org for AlphaSys and Techn unmanaged package work, unless a project-specific specification names another org:
+
+- Org URL: `https://orgfarm-83452b405d-dev-ed.develop.my.salesforce.com/`
+- Developer username: `chris.48138b0da64f@agentforce.com`
+
+These are org identifiers, not authentication secrets. Keep passwords, access tokens, and other secrets out of this repository. Before any deployment, confirm the authenticated CLI or browser session points to this org rather than relying on a remembered default.
+
 ## Project Declaration
 
 Before development, record:
