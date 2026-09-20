@@ -10,6 +10,7 @@ Codex must ensure all proposed solutions comply with:
 - The branding and UX standard, where user-facing or administrator-facing work is involved
 - The WordPress plugin development standards, where plugin work is involved
 - The WordPress plugin GitHub update standard, where plugin update delivery from GitHub is involved
+- The Salesforce unmanaged package standard, where Salesforce unmanaged package work is involved
 - Any project-specific specification or implementation brief provided for the task
 
 ## Order of Authority
@@ -19,9 +20,10 @@ When standards overlap, follow this order:
 1. The current task specification
 2. Project-specific standards
 3. WordPress plugin standards
-4. Branding and UX standards
-5. General Codex development standards
-6. Existing codebase patterns
+4. Salesforce unmanaged package standards
+5. Branding and UX standards
+6. General Codex development standards
+7. Existing codebase patterns
 
 ## Working Rules
 
