@@ -522,3 +522,9 @@ Inspect HTTP callers and identify legacy plugin/MU-plugin force-refresh code. Co
 When maintaining a plugin under this standard, use the controller contract and migration process rather than copying a self-contained updater. Do not invent controller endpoints before the controller is available. Preserve package identity, correct author/link metadata, complete the applicable version/changelog/build/push/release/catalogue steps, and report the released version and verified URL.
 
 For documentation-only changes, commit and push without an unnecessary plugin release. Report which checks ran, which runtime checks remain pending, and any deployment limitations. Updating this standard does not itself release the controller, migrate plugin repositories, or modify installed sites.
+
+## Catalogue beta status and grouping
+
+Every trusted registry entry must declare an explicit boolean `beta` status. New or unreviewed entries default to beta. Remove beta only after completing and validating the standards migration; do not infer readiness from the author, version number or controller API header alone. Publish the status in verified catalogue metadata so an approved promotion can reach sites during their next catalogue check. Older cached catalogues without this field use bundled defaults; reject malformed status values.
+
+Render catalogue groups in this order: Active plugins; non-beta plugins that are not active (including installed/inactive and not installed); then beta plugins that are not active. A plugin appears only once. Active beta plugins remain in Active with a visible Beta chip. Show the chip in catalogue cards and the controller installed list. Search spans all groups and hides empty sections. Beta is a readiness label, independent of activation, update availability and GitHub prerelease channels; it does not alter installation permissions, auto-update preferences or compatibility checks.
