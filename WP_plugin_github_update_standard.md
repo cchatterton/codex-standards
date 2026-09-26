@@ -18,7 +18,16 @@ The goal is:
 
 ## Controller Ownership
 
-The Techn Update Controller is the single update coordinator for explicitly registered Techn and AlphaSys GitHub-distributed plugins. Its default WordPress plugin display name is **TN Update Controller**, authored by **Techn**. UI bootstrap actions use the full labels **Install Techn Update Controller** and **Activate Techn Update Controller**.
+Each author brand has its own update coordinator and catalogue:
+
+| Author | Controller display name | Official repository | Client API |
+| --- | --- | --- | --- |
+| Techn | TN Update Controller | `cchatterton/tn-update-controller` | `tnuc_`, `TNUC_API_VERSION` |
+| AlphaSys | AS Update Controller | `cchatterton/as-update-controller` | `asuc_`, `ASUC_API_VERSION` |
+
+Techn's catalogue contains only approved Techn-authored plugins from the specified GitHub owner; AlphaSys's contains only approved AlphaSys-authored plugins. Verify authorship from the published plugin package, not a repository-name prefix. Both controllers may coexist with independent namespaces, options, locks and schedules. Neither registers, updates or displays the other brand's catalogue. Each controller includes itself.
+
+UI bootstrap actions use **Install Techn Update Controller** / **Activate Techn Update Controller**, or **Install AlphaSys Update Controller** / **Activate AlphaSys Update Controller**, according to the client author. The remaining requirements apply independently to both controllers.
 
 Individual plugins declare their identity and expose a small, guarded controller integration. They must not contain independent release discovery, remote update checks, update cron jobs, or fallback updaters. The controller manages its own updates using the same discovery and caching rules.
 
@@ -282,7 +291,7 @@ Remote discovery is permitted only in a scheduled worker or an explicit authoris
 
 - Default to background discovery approximately every six hours, with modest scheduling jitter between sites. Use the same interval whether the installed version is current or older.
 - Offer a manual-only setting. In this mode, do not schedule automatic discovery; explain that new releases remain unknown until a manual check succeeds.
-- Provide per-plugin **Check for updates**, **Check all Techn updates**, and **Refresh catalogue** actions. The last action refreshes catalogue metadata only and does not install anything. AlphaSys catalogue entries may be included where explicitly registered, with their authorship preserved and scope clearly labelled.
+- Provide per-plugin **Check for updates**, **Check all Techn updates**, and **Refresh catalogue** actions. The last action refreshes catalogue metadata only and does not install anything. AlphaSys uses equivalent actions within its own controller; never combine author catalogues.
 - Validate capabilities and nonces in every action endpoint. A row action targets one recognised plugin; an aggregate catalogue may be fetched once to satisfy it, but must not trigger unrelated per-plugin lookups or installations.
 - A manual action may bypass the normal freshness interval once. It must not bypass an in-progress job, deduplication, or remote retry deadlines. Repeated clicks reuse/report the existing operation.
 - Return promptly with a job identifier and visible progress when work is queued. Provide a bounded explicit check path when cron is unavailable; never silently fall back to checking during page rendering.
@@ -368,13 +377,13 @@ Use one network-scoped controller catalogue, schedule, and lock for shared plugi
 
 Use exact author spelling **Techn**, with **By Techn** linking to `https://techn.com.au`. Preserve **AlphaSys** for AlphaSys products. The **GitHub** link targets that plugin's official repository. Omit `Plugin URI` and therefore **Visit plugin site**; retain `Update URI`.
 
-Expose one controller action according to local installation/runtime state:
+Expose one controller action according to local installation/runtime state. The table below shows Techn labels; AlphaSys substitutes **AlphaSys** for **Techn** and uses its own controller:
 
 | Controller state | Exact row action | Behaviour |
 |---|---|---|
 | Not installed | Install Techn Update Controller | Opens the trusted controller installation flow |
 | Installed but inactive in the required context | Activate Techn Update Controller | Opens/performs the authorised native WordPress activation flow |
-| Active and compatible | Check for updates | Calls the controller for this plugin only |
+| Active and compatible | Check for updates | Calls the matching author's controller; a single aggregate catalogue fetch may cover all its registered plugins |
 | Installed but incompatible | Update Techn Update Controller | Opens the controller's native update or documented recovery flow |
 
 Only show executable actions to users with the corresponding capability (`install_plugins`, activation authority, or `update_plugins` as appropriate), and verify permissions/nonces server-side. Users without permission may see concise status, never an action they can execute without authority.
@@ -401,7 +410,7 @@ When the controller is absent, inactive plugins cannot run their bootstrap links
 
 ## Controller Admin Experience
 
-Provide **Techn Plugins** under the WordPress Plugins menu, using the appropriate Network Admin location on multisite. Use Author Branded mode with restrained Techn branding and native WordPress controls. Keep AlphaSys authorship visible on registered AlphaSys entries.
+Provide **Techn Plugins** or **AlphaSys Plugins** under the WordPress Plugins menu, using the appropriate Network Admin location on multisite. Use Author Branded mode with the matching author identity and native WordPress controls. Each page contains only its own approved author catalogue.
 
 | Tab | Required purpose |
 |---|---|

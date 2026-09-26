@@ -27,7 +27,7 @@ When standards overlap, follow this order:
 
 ## WordPress Update Architecture
 
-GitHub-distributed Techn/AlphaSys plugins use the Techn Update Controller as their single registered update provider. Ordinary admin rendering must make zero updater metadata requests, including on cache misses. Client plugins expose controller install/activate/check actions and do not ship independent updaters. The update standard owns the detailed contract, release publication order, catalogue UI and guided migration requirements; read it before changing updater code.
+GitHub-distributed Techn plugins use TN Update Controller; AlphaSys plugins use AS Update Controller. Each controller is the sole provider for its own approved author catalogue from the declared GitHub owner, and both may coexist. Ordinary admin rendering must make zero updater metadata requests, including on cache misses. Client plugins expose controller install/activate/check actions and do not ship independent updaters. The update standard owns the detailed contract, release publication order, catalogue UI and guided migration requirements; read it before changing updater code.
 
 This is a target architecture, not a claim that the controller or migration releases are deployed. Follow the standard's controller-first rollout sequence.
 

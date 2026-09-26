@@ -101,9 +101,9 @@ Use **Techn** consistently in author metadata and interface text; do not substit
 
 The repository slug and text domain should still use the declared plugin slug. Do not rename an existing directory/main file or text domain merely to change the visible brand prefix.
 
-For GitHub-distributed plugins, follow [WP_plugin_github_update_standard.md](WP_plugin_github_update_standard.md). The Techn Update Controller owns discovery, caching, scheduling and native update metadata for registered plugins. Feature plugins contain only its small guarded integration, not independent updaters.
+For GitHub-distributed plugins, follow [WP_plugin_github_update_standard.md](WP_plugin_github_update_standard.md). The matching author controller (TN Update Controller for Techn; AS Update Controller for AlphaSys) owns discovery, caching, scheduling and native update metadata for its registered plugins. Each catalogue is restricted to approved plugins from its declared GitHub owner and matching author; the two controllers may coexist. Feature plugins contain only its small guarded integration, not independent updaters.
 
-Techn plugin rows keep **By Techn** and **GitHub**, omit **Visit plugin site**, and show **Install Techn Update Controller**, **Activate Techn Update Controller**, or **Check for updates** according to controller state and permissions. An incompatible controller uses the update/recovery action defined in the update standard. Keep `Update URI`; omit `Plugin URI`. Rendering these actions must perform zero remote update lookups. The controller is not a dependency for normal feature operation.
+Techn plugin rows keep **By Techn** and **GitHub**, omit **Visit plugin site**, and show **Install Techn Update Controller**, **Activate Techn Update Controller**, or **Check for updates** according to controller state and permissions. An incompatible controller uses the update/recovery action defined in the update standard. Keep `Update URI`; omit `Plugin URI`. Rendering these actions must perform zero remote update lookups. AlphaSys rows use the equivalent AlphaSys controller labels and integration. The controller is not a dependency for normal feature operation.
 
 Example:
 
