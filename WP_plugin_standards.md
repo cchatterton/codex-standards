@@ -454,10 +454,10 @@ The header must include:
 === Plugin Name ===
 Contributors: verified-wordpress-org-usernames
 Tags: up to five relevant tags
-Requires at least: 6.0
+Requires at least: 7.0
 Tested up to: the latest version actually tested
 Stable tag: 0.1.0
-Requires PHP: 8.1
+Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 ```
@@ -533,3 +533,11 @@ If there is a conflict between documents, priority order is:
 2. Codex Plugin Standards Sheet
 3. Branding and UX Standards Sheet
 4. Codex Code Standards Sheet
+
+## PHP compatibility baseline
+
+For plugins targeting WordPress 7.0, use PHP 7.4 as the default minimum, matching [WordPress core’s documented minimum](https://make.wordpress.org/core/2026/05/22/php-support-clarification-2026/). This baseline also applies to the Techn and AlphaSys update controllers and their bootstrap clients. A higher minimum requires an identified code or dependency requirement and explicit agreement; do not set the minimum to the newest PHP release merely because it is used for development.
+
+Keep minimum compatibility separate from hosting recommendations. Test on PHP 7.4, on the deployed fleet version (currently PHP 8.1.23), and on a current stable PHP version when changing compatibility-sensitive code. Check syntax, dependencies, activation, core feature paths, and controller discovery/update operations; syntax checks alone do not establish runtime compatibility. WordPress-provided compatibility functions may be used after WordPress loads.
+
+Keep plugin headers, readme requirements, bootstrap guards and catalogue metadata consistent. Publish a new patch release when correcting distributed requirements; never change or replace an existing release tag or asset. Refresh catalogue metadata only after verifying the new package. Record actual tested versions separately from declared minimums and recommended hosting versions.

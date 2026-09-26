@@ -121,8 +121,8 @@ Example plugin header:
  * Plugin Name: TN Example Plugin
  * Description: Short description.
  * Version: 0.1.4
- * Requires at least: 6.0
- * Requires PHP: 8.1
+ * Requires at least: 7.0
+ * Requires PHP: 7.4
  * Update URI: https://github.com/owner/repo
  * Author: Techn
  * Author URI: https://techn.com.au
