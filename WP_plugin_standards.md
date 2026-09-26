@@ -65,7 +65,7 @@ or:
 
 ```php
 /**
- * Plugin Name: Techn Example Plugin
+ * Plugin Name: TN Example Plugin
  * Description: Short description of what the plugin does.
  * Version: 0.1.0
  * Author: Techn
@@ -97,7 +97,13 @@ Author: Techn
 Author URI: https://techn.com.au
 ```
 
-The repository slug and text domain should still use the declared plugin slug.
+Use **Techn** consistently in author metadata and interface text; do not substitute **TECHN**. Preserve **AlphaSys** for AlphaSys-owned products.
+
+The repository slug and text domain should still use the declared plugin slug. Do not rename an existing directory/main file or text domain merely to change the visible brand prefix.
+
+For GitHub-distributed plugins, follow [WP_plugin_github_update_standard.md](WP_plugin_github_update_standard.md). The Techn Update Controller owns discovery, caching, scheduling and native update metadata for registered plugins. Feature plugins contain only its small guarded integration, not independent updaters.
+
+Techn plugin rows keep **By Techn** and **GitHub**, omit **Visit plugin site**, and show **Install Techn Update Controller**, **Activate Techn Update Controller**, or **Check for updates** according to controller state and permissions. An incompatible controller uses the update/recovery action defined in the update standard. Keep `Update URI`; omit `Plugin URI`. Rendering these actions must perform zero remote update lookups. The controller is not a dependency for normal feature operation.
 
 Example:
 
@@ -135,7 +141,7 @@ Author: AlphaSys
 Example:
 
 ```text
-Plugin Name: Techn Content Sync
+Plugin Name: TN Content Sync
 Slug: techn-content-sync
 Prefix: tcs
 Text Domain: techn-content-sync

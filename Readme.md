@@ -9,7 +9,7 @@ Codex must ensure all proposed solutions comply with:
 - The general Codex development standards
 - The branding and UX standard, where user-facing or administrator-facing work is involved
 - The WordPress plugin development standards, where plugin work is involved
-- The WordPress plugin GitHub update standard, where plugin update delivery from GitHub is involved
+- The [WordPress plugin GitHub update standard](WP_plugin_github_update_standard.md), including controller ownership, plugin-row actions, catalogue publication and legacy migration, where plugin update delivery from GitHub is involved
 - The Salesforce unmanaged package standard, where Salesforce unmanaged package work is involved
 - Any project-specific specification or implementation brief provided for the task
 
@@ -24,6 +24,12 @@ When standards overlap, follow this order:
 5. Branding and UX standards
 6. General Codex development standards
 7. Existing codebase patterns
+
+## WordPress Update Architecture
+
+GitHub-distributed Techn/AlphaSys plugins use the Techn Update Controller as their single registered update provider. Ordinary admin rendering must make zero updater metadata requests, including on cache misses. Client plugins expose controller install/activate/check actions and do not ship independent updaters. The update standard owns the detailed contract, release publication order, catalogue UI and guided migration requirements; read it before changing updater code.
+
+This is a target architecture, not a claim that the controller or migration releases are deployed. Follow the standard's controller-first rollout sequence.
 
 ## Working Rules
 
