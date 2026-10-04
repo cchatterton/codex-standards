@@ -355,7 +355,8 @@ Finishing an implementation includes delivering it through the repository's esta
 - Never overwrite or reuse an existing release tag. Determine the next valid version from the repository's current version and published releases.
 - Use a patch version for backward-compatible fixes by default; use a minor or major version when the scope or project versioning policy requires it.
 - Run the relevant validation before publishing and verify the remote commit, tag, release, and required assets after publishing.
-- Do not describe work as complete while required release steps remain unfinished.
+- For Techn/AlphaSys GitHub-distributed WordPress plugins, every stable release must also update and push the matching controller catalogue, then verify its public JSON advertises the exact verified release. Follow WP_plugin_github_update_standard.md; do not omit this because the task ran in a feature-plugin repository.
+- Do not describe work as complete while required release steps remain unfinished, including catalogue publication/public verification.
 - If credentials, permissions, CI, hosting, or another external dependency blocks release, complete every safe available step and report the exact blocker and remaining action.
 
 ---

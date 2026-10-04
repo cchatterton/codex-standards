@@ -101,7 +101,7 @@ Use **Techn** consistently in author metadata and interface text; do not substit
 
 The repository slug and text domain should still use the declared plugin slug. Do not rename an existing directory/main file or text domain merely to change the visible brand prefix.
 
-For GitHub-distributed plugins, follow [WP_plugin_github_update_standard.md](WP_plugin_github_update_standard.md). The matching author controller (TN Update Controller for Techn; AS Update Controller for AlphaSys) owns manual discovery, caching and native update metadata for its verified plugins. Each catalogue discovers released plugins from its declared trusted GitHub owner and verified matching package author by default; the registry holds only exceptions; the two controllers may coexist. Feature plugins contain only its small guarded integration, not independent updaters.
+For GitHub-distributed plugins, follow [WP_plugin_github_update_standard.md](WP_plugin_github_update_standard.md). The matching author controller (TN Update Controller for Techn; AS Update Controller for AlphaSys) owns manual discovery, caching and native update metadata for its verified plugins. The release publisher discovers plugins from the trusted owner and verified matching author, then publishes the matching catalogue; WordPress checks download one public JSON file; the registry holds only exceptions; the two controllers may coexist. Feature plugins contain only its small guarded integration, not independent updaters.
 
 Techn plugin rows keep **By Techn** and **GitHub**, omit **Visit plugin site**, and show **Install Techn Update Controller**, **Activate Techn Update Controller**, or **Check for updates** according to controller state and permissions. An incompatible controller uses the update/recovery action defined in the update standard. Keep `Update URI`; omit `Plugin URI`. Rendering these actions must perform zero remote update lookups. AlphaSys rows use the equivalent AlphaSys controller labels and integration. The controller is not a dependency for normal feature operation.
 
@@ -523,7 +523,7 @@ When building a plugin from this standard, Codex must:
 12. Ask only if a missing decision blocks implementation
 13. Treat changes to distributable plugin files as release work by default
 14. Follow the repository's complete version, changelog, ZIP, commit, push, tag, and release process without requiring a separate release prompt
-15. Verify the published release and expected ZIP asset before reporting completion
+15. Verify the published release and expected ZIP asset, then update/push the matching author controller’s catalogue and verify the public raw JSON advertises that exact version/tag/asset/checksum before reporting completion. This applies to every stable feature-plugin and controller release; a stale/missing/unpublished catalogue entry means delivery is incomplete. Follow the concrete catalogue-publication commands in WP_plugin_github_update_standard.md.
 
 Repository-only documentation, tests, or development tooling changes may be committed and pushed without a plugin version release when they do not alter the distributable package. An explicit local-only, draft, review, or no-release instruction also overrides the default release requirement.
 
