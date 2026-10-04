@@ -25,7 +25,7 @@ Each author brand has its own update coordinator and catalogue:
 | Techn | TN Update Controller | `cchatterton/tn-update-controller` | `tnuc_`, `TNUC_API_VERSION` |
 | AlphaSys | AS Update Controller | `cchatterton/as-update-controller` | `asuc_`, `ASUC_API_VERSION` |
 
-Techn's catalogue contains only approved Techn-authored plugins from the specified GitHub owner; AlphaSys's contains only approved AlphaSys-authored plugins. Verify authorship from the published plugin package, not a repository-name prefix. Both controllers may coexist with independent namespaces, options, locks and schedules. Neither registers, updates or displays the other brand's catalogue. Each controller includes itself.
+Techn's catalogue discovers released Techn-authored plugins by default from the specified GitHub owner; AlphaSys's discovers released AlphaSys-authored plugins by default. Verify authorship from the published plugin package, not a repository-name prefix. Both controllers may coexist with independent namespaces, options and locks. Neither registers, updates or displays the other brand's catalogue. Each controller includes itself.
 
 UI bootstrap actions use **Install Techn Update Controller** / **Activate Techn Update Controller**, or **Install AlphaSys Update Controller** / **Activate AlphaSys Update Controller**, according to the client author. The remaining requirements apply independently to both controllers.
 
@@ -285,26 +285,23 @@ The controller must make zero outbound update-metadata HTTP calls while renderin
 
 Update-transient read/write filters, `plugins_api`, and update-provider callbacks may only project locally stored metadata. They must not perform HTTP calls, recursively refresh transients, delete caches, or invoke `wp_update_plugins()`. A cache miss means unknown/stale status until a separate check completes, not permission to fetch on the read path.
 
-Remote discovery is permitted only in a scheduled worker or an explicit authorised check operation, separate from page rendering. Installation/package downloads are distinct authorised operations and use the WordPress upgrader.
+Remote discovery is permitted only in an explicit authorised manual check operation, separate from page rendering. Installation/package downloads are distinct authorised operations and use the WordPress upgrader.
 
-### Scheduling and manual checks
+### Manual checks only
 
-- Default to background discovery approximately every six hours, with modest scheduling jitter between sites. Use the same interval whether the installed version is current or older.
-- Offer a manual-only setting. In this mode, do not schedule automatic discovery; explain that new releases remain unknown until a manual check succeeds.
-- Provide per-plugin **Check for updates**, **Check all Techn updates**, and **Refresh catalogue** actions. The last action refreshes catalogue metadata only and does not install anything. AlphaSys uses equivalent actions within its own controller; never combine author catalogues.
-- Validate capabilities and nonces in every action endpoint. A row action targets one recognised plugin; an aggregate catalogue may be fetched once to satisfy it, but must not trigger unrelated per-plugin lookups or installations.
-- A manual action may bypass the normal freshness interval once. It must not bypass an in-progress job, deduplication, or remote retry deadlines. Repeated clicks reuse/report the existing operation.
-- Return promptly with a job identifier and visible progress when work is queued. Provide a bounded explicit check path when cron is unavailable; never silently fall back to checking during page rendering.
-- Register schedules once, reconcile changes to the scheduling setting, and remove the controller's jobs on deactivation. Verify scheduler health and show delayed/failed checks with a recovery action.
-- Native WordPress **Check again**, if integrated, must dispatch one controller check through a verified action adapter. Never interpret a global `force-check` query value inside metadata getters as permission to ignore caching.
-- `update-selected`, `upgrade-plugin`, and `do-plugin-upgrade` are installation operations, not triggers to rediscover every plugin.
-- Never add `techn_update_refresh` or `force-check` to ordinary Plugins navigation. After explicit actions, redirect to a clean URL with only a non-repeating result reference where needed.
+- No cron discovery, background polling, scheduled publisher scans, or automatic checker. This is a fixed behaviour, not a configurable mode.
+- Provide **Check for updates** on the controller and recognised plugin rows. One authorised click refreshes both available capabilities and update status for all installed same-brand plugins from one verified aggregate feed. It does not install or activate anything.
+- Validate capabilities and nonces in every check endpoint. Never interpret a generic `force-check` query parameter or normal WordPress update hooks as permission to fetch.
+- Keep checks bounded and show progress and results. Repeated clicks respect the operation lock, recent-success cooldown and remote retry deadlines.
+- On upgrade, remove obsolete controller cron events and ignore stored scheduled-mode preferences. Activation, rendering, transient reads/writes, View details and old scheduled callbacks must not fetch metadata.
+- After explicit actions, redirect to a clean URL. Installation operations are not discovery triggers.
+- Publish the aggregate feed explicitly after plugin releases, using the release publisher below. Manual site checks consume the latest published feed; they do not enumerate GitHub or inspect ZIPs. Document that publication is required for a new release to reach sites.
 
 ### Stored state, deduplication, and failures
 
-Keep the last successful release/catalogue snapshot separately from refresh scheduling and diagnostics. Use durable WordPress options/site options for the last-known-good snapshot; an expiring transient alone must not be its only copy. Temporary locks and caches may use suitable WordPress storage.
+Keep the last successful release/catalogue snapshot separately from refresh diagnostics. Use durable WordPress options/site options for the last-known-good snapshot; an expiring transient alone must not be its only copy. Temporary locks and caches may use suitable WordPress storage.
 
-Track at least `last_attempt`, `last_success`, `next_check`, retry deadline, and current job/result state. Show **Never checked**, **Current as of …**, **Update available**, **Check failed; showing previous results**, or **Check in progress** accurately. A failed lookup must never be recorded as a successful no-update result.
+Track at least `last_attempt`, `last_success`, retry deadline, and current job/result state. Show **Never checked**, **Current as of …**, **Update available**, **Check failed; showing previous results**, or **Check in progress** accurately. A failed lookup must never be recorded as a successful no-update result.
 
 - Preserve the last successful metadata on HTTP, DNS, TLS, JSON, or schema failure. Do not overwrite it with an error sentinel or delete it merely because a refresh failed.
 - Validate a complete candidate snapshot before replacing the last valid snapshot. Do not accept malformed or untrusted package identities.
@@ -319,9 +316,11 @@ Track at least `last_attempt`, `last_success`, `next_check`, retry deadline, and
 
 ## Catalogue and Release Metadata
 
-Maintain an explicit registry of supported plugins. Match installed plugins by their known plugin basename (directory/main PHP file) and configured identity, including repository and Update URI where present. Legacy entries may specify audited aliases or missing old headers. Never claim ownership using author text or a name prefix alone. Ambiguous or unknown installations require review and must not be overwritten automatically.
+Discover public, stable released plugins by default from the configured trusted GitHub owner. Enumerate all repository pages, inspect published release ZIPs, and require a clear exact AlphaSys or Techn author header (case-insensitive legacy spelling is acceptable). Owner plus verified package author establishes brand membership; repository prefixes or arbitrary author text alone do not. Where supplied, Update URI must agree with the verified owner/repository. Exclude drafts, prereleases, private repositories, non-plugin packages and other brands. Forks and archived repositories require an explicit include exception.
 
-The registry must include the controller itself and cover installed inactive plugins without loading their feature code. Discover installed headers using WordPress APIs.
+The maintained registry is exceptions-only: ambiguous authorship/ownership, explicit include/exclude, domain-exclusive overrides, aliases, superseded packages, legacy identities and audited callback hashes, or reviewed readiness overrides. Ordinary new same-brand releases require no per-plugin registration and no controller release. Preserve existing reviewed legacy exceptions; never infer executable callback trust from discovered metadata.
+
+The generated catalogue is a verified release snapshot, not a hand-maintained allowlist. Include the controller itself. Match installed active and inactive plugins by the verified basename and repository/Update URI, using audited legacy exceptions where necessary. Never execute inactive feature code. Retain published identity pins, reject collisions, and fail publication without replacing the last good snapshot when a previously published plugin unexpectedly disappears or verification fails. Explicit exclusions/supersession may withdraw entries; remove only this controller's corresponding stale native update entries.
 
 Each entry must define:
 
@@ -335,7 +334,7 @@ Use a versioned, validated catalogue schema and a trusted, configured HTTPS sour
 
 The preferred steady-state design is one aggregate published catalogue: one successful metadata request per refresh job, then local version comparison for all plugins. Do not send site inventory or credentials to fetch a public static catalogue.
 
-An initial controller may use repository `update.json` manifests in bounded background batches, at most one lookup per selected source per job. This is a transitional transport, not a reason to put fetching back into individual plugins. Valid manifests must not trigger GitHub API enrichment, `/releases/latest` redirect probes, or package probes. Missing/invalid metadata should produce a recorded failure and backoff; do not implement automatic multi-endpoint fallback chains on WordPress sites.
+An initial controller may use repository `update.json` manifests during a bounded explicit manual check, at most one lookup per selected source per job. This is a transitional transport, not a reason to put fetching back into individual plugins. Valid manifests must not trigger GitHub API enrichment, `/releases/latest` redirect probes, or package probes. Missing/invalid metadata should produce a recorded failure and backoff; do not implement automatic multi-endpoint fallback chains on WordPress sites.
 
 Use GitHub API access in the release publishing/validation workflow when needed, rather than relying on unauthenticated API quotas across the installed fleet.
 
@@ -369,7 +368,7 @@ Serve View details from cached catalogue/release information with a useful descr
 
 ### Multisite
 
-Use one network-scoped controller catalogue, schedule, and lock for shared plugin files. Require network-level update/install authority and perform shared-file operations in Network Admin. Detect site-active and network-active controller states correctly; a controller active on a subsite alone must not be treated as the network's update provider. Preserve site and network activation scope during migration. Do not network-activate feature plugins solely to make update discovery work.
+Use one network-scoped controller catalogue and lock for shared plugin files. Require network-level update/install authority and perform shared-file operations in Network Admin. Detect site-active and network-active controller states correctly; a controller active on a subsite alone must not be treated as the network's update provider. Preserve site and network activation scope during migration. Do not network-activate feature plugins solely to make update discovery work.
 
 ---
 
@@ -416,11 +415,11 @@ Provide **Techn Plugins** or **AlphaSys Plugins** under the WordPress Plugins me
 |---|---|
 | Installed | Installed/available versions, active/inactive state, compatibility, last successful check, migration status, per-plugin check and bulk update selection |
 | Catalogue | Searchable plugin cards with description, approved artwork where available, version, requirements, details and state-appropriate actions |
-| Settings | Scheduled/manual-only checking, interval, scheduler status and sanitised diagnostics |
+| Settings | Explain fixed manual-only checking and sanitised diagnostics |
 
 Catalogue card actions must reflect actual state: **Install**, **Activate**, **Open settings** where available, or **Update**. Explain incompatibility and disable the affected action. Installation must not silently activate a feature plugin. Retain native Deactivate controls on the Plugins screen; the catalogue need not duplicate every management action.
 
-Show cached catalogue content immediately. With no snapshot, provide an empty state and explicit **Refresh catalogue** action. Never refresh per card or fetch metadata as a side effect of opening a tab. Batch progress/status polling locally and stop it when the job completes. Make loading, partial failure, stale data, permission limits and retry states keyboard accessible and understandable without colour alone.
+Show cached catalogue content immediately. With no snapshot, provide an empty state and explicit **Check for updates** action. Never refresh per card or fetch metadata as a side effect of opening a tab. Batch progress/status polling locally and stop it when the job completes. Make loading, partial failure, stale data, permission limits and retry states keyboard accessible and understandable without colour alone.
 
 Individual feature settings pages may show their installed version and link to this controller page; do not reproduce updater settings in every plugin. Keep native WordPress notifications and Update now actions available alongside the catalogue.
 
@@ -483,7 +482,7 @@ Controller releases must include meaningful automated tests for these behaviours
 - Successful aggregate discovery performs one metadata lookup per job; transitional per-repository discovery performs at most one per selected source. Repeated callbacks, manual clicks and concurrent workers do not duplicate work.
 - `force-check` and install-action query parameters do not bypass caches in getters or create navigation/refresh loops. Redirects do not repeat the operation.
 - Timeouts, bad JSON/schema, `403` and `429` preserve valid metadata and enforce retry deadlines. No failure becomes Current/no-update. Manual checks respect backoff and locks.
-- Manual-only mode has no automatic discovery schedule. Scheduled mode deduplicates jobs and handles disabled/delayed cron with visible status and recovery.
+- No automatic discovery is scheduled, including after upgrading from scheduled mode. Old callbacks and generic force-check queries perform zero HTTP. One manual check refreshes both library availability and installed update projections.
 - Controller absent, inactive, active, incompatible and unavailable-download states show accurate actions, including permission/nonce failures and both load orders.
 - Active/inactive registered plugins receive native update metadata; unrelated plugins/providers and global update information remain intact.
 - Installation/bulk updates respect platform restrictions, compatibility, dependencies, authorisation and multisite scope. Unknown identities and untrusted package destinations are rejected.
@@ -525,7 +524,7 @@ For documentation-only changes, commit and push without an unnecessary plugin re
 
 ## Catalogue beta status and grouping
 
-Every trusted registry entry must declare an explicit boolean `beta` status. New or unreviewed entries default to beta. Remove beta only after completing and validating the standards migration; do not infer readiness from the author, version number or controller API header alone. Publish the status in verified catalogue metadata so an approved promotion can reach sites during their next catalogue check. Older cached catalogues without this field use bundled defaults; reject malformed status values.
+Every generated release entry must carry a boolean `beta` status. Exceptions may override reviewed readiness explicitly. New or unreviewed entries default to beta. Remove beta only after completing and validating the standards migration; do not infer readiness from the author, version number or controller API header alone. Publish the status in verified catalogue metadata so an approved promotion can reach sites during their next catalogue check. Older cached catalogues without this field use bundled defaults; reject malformed status values.
 
 Render catalogue groups in this order: Active; Installed (installed but inactive); Available (uninstalled non-beta); Beta (uninstalled beta). A plugin appears only once. Activation and installation take precedence over readiness. Active and installed beta plugins retain their Beta chip. Active cards offer Deactivate; Installed cards offer Activate and Delete; Available and Beta cards offer Install. Keep update actions on Updates available. Hide empty sections. Omit redundant card status strips and the catalogue heading/search toolbar; the lifecycle group headings and actions convey state. Refresh card state through an authenticated, nonce-protected server response after lifecycle actions; do not rely on cached page HTML. Beta is a readiness label, independent of GitHub prerelease channels, permissions, auto-update preferences and compatibility checks.
 
@@ -546,6 +545,6 @@ The catalogue publisher reads these headers from the verified release ZIP and pu
 
 Match the configured home URL on single-site and the network home URL on multisite. A mixed-domain network is governed by its network domain; a qualifying member site alone does not authorise network-wide installation. Apply restrictions to catalogue cards, update projections, managed installation/activation and package downloads. Localhost bypasses only domain availability, not permissions, compatibility, dependency checks or package verification. These headers govern controller distribution; they do not disable plugin runtime outside the controller. Public GitHub repositories/assets remain public and this is not licensing or download authentication.
 
-New custom plugins must be explicitly approved in the publisher's registry, with exact repository, author, basename, ZIP identity and beta status. Publish their verified catalogue entries to the fixed brand-specific HTTPS feed; controllers accept new same-brand identities without a controller release. Do not enumerate every repository by author. Validate identities and paths, reject collisions and cross-brand entries, and retain existing identity pins. Remote metadata must never introduce executable legacy callback trust; that remains audited and bundled.
+New same-brand plugins are discovered from verified public releases without per-plugin registration. The publisher uses repository ownership plus exact package authorship; ambiguous cases need an exception. Publish verified entries to the fixed brand-specific HTTPS feed; controllers accept new same-brand identities without a controller release. Validate identities and paths, reject collisions and cross-brand entries, and retain identity pins. Remote metadata must never introduce executable legacy callback trust; that remains audited and bundled.
 
 The first controller tab is Updates available and contains only installed, verified identities with newer releases. The catalogue holds the full permitted library. Cards expose permission-checked activation/deactivation and confirmed deletion instead of Manage plugin. Network admin actions explicitly use network scope. Deletion must respect file-modification policy and must fail while a plugin is active on any member site, without silently deactivating it. Use native WordPress lifecycle APIs and dependency checks, nonce-protected requests, an operation lock, verified completion and accessible feedback. Self-deactivation uses the native Plugins action so the controller can unload cleanly. Keep Beta chips small at the bottom-right of catalogue cards.
