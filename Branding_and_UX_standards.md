@@ -79,7 +79,7 @@ Examples include:
 
 In this mode:
 
-- Use the declared author brand: AlphaSys or Techn.
+- Preserve the declared author (AlphaSys or Techn) in plugin metadata, attribution and support ownership. Do not add a standalone author-name label to the product hero.
 - Use the shared AlphaSys and Techn navy-and-orange product palette defined in this standard. The shared palette does not merge the two brands: product naming, authorship, metadata, and support ownership must still identify the correct author.
 - Use approved author colours, typography, logo treatment, voice, and design tokens.
 - Keep platform-native structure and behaviour beneath the branded presentation.
@@ -133,7 +133,7 @@ The branding mode determines where visual tokens come from. It must be decided b
 |---|---|---|
 | Primary visual source | The shared AlphaSys and Techn navy-and-orange system | The core product being extended |
 | Structure and behaviour | Native platform patterns | Core product patterns first, then native platform patterns |
-| Author identity | Visible and appropriately prominent | Accurate but visually subordinate |
+| Author identity | Preserved in metadata and attribution; no standalone author label in the hero | Accurate but visually subordinate |
 | Hero or branded shell | Permitted for an owned top-level surface | Normally not permitted inside the core product's interface |
 | Primary action styling | Author navy with white text | Core product's supported primary action treatment |
 | Orange accent | Used selectively | Do not introduce unless it belongs to the core product's palette |
@@ -191,7 +191,16 @@ Orange is an accent, not a general-purpose text colour. Verify contrast for its 
 
 ### Author Brand Hero
 
-An owned, top-level product screen may use one compact branded hero to establish identity. It should contain an eyebrow, one page title, a concise value statement, and only useful capability badges.
+An owned, top-level product screen may use one compact branded hero to establish product identity. Follow the Content Planner and Persona26 header pattern:
+
+- Use a short, uppercase, purpose-led eyebrow, such as `PLAN. ORGANISE. PUBLISH.` or `VISITOR INTELLIGENCE`. It must describe the product or task, not state `Techn`, `TECHN` or `AlphaSys`.
+- Show the user-facing product title and a concise value statement on the left. Use the approved short product name where specified (for example, `Pallet` rather than `TN Pallet` in its hero); this does not rename the plugin, slug or text domain.
+- Show the installed version at the top right, using `v` followed by the canonical runtime version. Never hardcode a separate display version.
+- Place a small group of useful capability chips at the lower right, aligned with the value statement on desktop. Chips describe actual features or active integrations; they are informational, not buttons.
+- Use subtle translucent fills, light borders and readable white text for chips. Keep them visually subordinate to the title.
+- On narrow screens, let the value statement and chips stack and the chips wrap without clipping or page overflow. Preserve clear reading order and accessible version text.
+
+Do not display a standalone author-name label in the hero. Author Branded describes the visual system and ownership; it does not require the author name as a banner. Preserve approved product names (including an existing TN or AS prefix), plugin author metadata, attribution and support ownership.
 
 The preferred background is a tonal navy treatment with a brighter navy highlight:
 
